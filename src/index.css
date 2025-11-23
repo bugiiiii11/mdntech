@@ -1,3 +1,168 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  * {
+    @apply box-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-black-pure text-white-soft font-secondary;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-primary font-semibold;
+  }
+}
+
+@layer components {
+  .section-padding {
+    @apply py-10 px-8 md:py-20 lg:py-32;
+  }
+
+  .container-custom {
+    @apply max-w-7xl mx-auto;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-matrix text-black-pure font-medium px-6 py-3 rounded-md
+           shadow-green-glow transition-all duration-300 ease-out
+           hover:shadow-green-glow-lg hover:-translate-y-0.5
+           active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-primary-green focus:ring-offset-2 focus:ring-offset-black-pure;
+  }
+
+  .btn-secondary {
+    @apply bg-transparent text-white-soft border border-white-muted/20 font-medium px-6 py-3 rounded-md
+           transition-all duration-300 ease-out
+           hover:border-primary-green hover:text-primary-green
+           focus:outline-none focus:ring-2 focus:ring-primary-green focus:ring-offset-2 focus:ring-offset-black-pure;
+  }
+
+  .input-field {
+    @apply bg-black-soft border border-white-soft/10 text-white-soft
+           px-4 py-3 rounded-md font-secondary
+           focus:border-primary-green focus:ring-1 focus:ring-primary-green focus:outline-none
+           transition-all duration-200;
+  }
+
+  .input-field::placeholder {
+    @apply text-white-dim;
+  }
+
+  .card {
+    @apply bg-black-card border border-white-soft/5 rounded-lg p-6
+           transition-all duration-300 ease-out
+           hover:border-primary-green hover:shadow-green-glow-sm hover:-translate-y-1;
+  }
+
+  .text-gradient-green {
+    @apply bg-gradient-matrix bg-clip-text text-transparent;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+
+  .slide-up {
+    animation: slideUp 0.6s ease-out forwards;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0A0A0A;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #00FF41;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #39FF6C;
+  }
+}
+
+/* Accessibility - Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Loading states */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #1A1A1A 0%,
+    #141414 50%,
+    #1A1A1A 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Cyberpunk arrow animations */
+.animate-spin-slow {
+  animation: spin 8s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-scan {
+  animation: scan 2s ease-in-out infinite;
+}
+
+@keyframes scan {
+  0% {
+    top: 0;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
