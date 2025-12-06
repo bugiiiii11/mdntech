@@ -1,10 +1,83 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 
+// Typing animation hook
+const useTypingEffect = (text, speed = 50, startTyping = true) => {
+  const [displayedText, setDisplayedText] = useState('');
+  const [isComplete, setIsComplete] = useState(false);
+
+  useEffect(() => {
+    if (!startTyping) {
+      setDisplayedText('');
+      setIsComplete(false);
+      return;
+    }
+
+    let index = 0;
+    setDisplayedText('');
+    setIsComplete(false);
+
+    const timer = setInterval(() => {
+      if (index < text.length) {
+        setDisplayedText(text.slice(0, index + 1));
+        index++;
+      } else {
+        setIsComplete(true);
+        clearInterval(timer);
+      }
+    }, speed);
+
+    return () => clearInterval(timer);
+  }, [text, speed, startTyping]);
+
+  return { displayedText, isComplete };
+};
+
+// Generate stable matrix characters once
+const generateMatrixChars = (length) => {
+  const chars = ['0', '1', 'ア', 'イ', 'ウ', 'エ', 'オ', 'カ', 'キ', '0', '1', '0', '1'];
+  return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]);
+};
+
+// Pre-generate columns data to prevent re-renders
+const matrixColumns = Array.from({ length: 20 }, (_, i) => ({
+  id: i,
+  delay: i * 0.2,
+  duration: 6 + (i % 5),
+  left: i * 5 + (i % 3),
+  chars: generateMatrixChars(25),
+}));
+
+// Matrix rain column component - memoized
+const MatrixColumn = ({ delay, duration, left, chars }) => {
+  return (
+    <motion.div
+      className="absolute top-0 text-primary-green font-mono text-sm leading-tight select-none pointer-events-none"
+      style={{ left: `${left}%` }}
+      initial={{ y: '-100%' }}
+      animate={{ y: '100%' }}
+      transition={{
+        duration,
+        delay,
+        repeat: Infinity,
+        ease: 'linear',
+      }}
+    >
+      {chars.map((char, i) => (
+        <div
+          key={i}
+          style={{ opacity: 0.1 + (i / 25) * 0.4 }}
+        >
+          {char}
+        </div>
+      ))}
+    </motion.div>
+  );
+};
+
 const Services = () => {
-  const [expandedCard, setExpandedCard] = useState(null);
-  const [hoveredCard, setHoveredCard] = useState(null);
+  const [activeService, setActiveService] = useState(0);
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
@@ -12,269 +85,255 @@ const Services = () => {
 
   const services = [
     {
+      id: 0,
+      name: 'Web & App',
+      command: '> deploy --stack=react,next,node',
+      output: 'Building scalable applications...',
+      tech: ['React', 'Next.js', 'Node.js', 'AWS'],
+    },
+    {
       id: 1,
-      name: 'Web & App Development',
-      tagline: 'Lightning-fast, scalable applications',
-      brief:
-        'Built with React, Tailwind CSS, and cutting-edge frameworks. From elegant landing pages to complex web3 platforms.',
-      details: {
-        expertise: '20 years of application development experience',
-        tech: ['React 18+', 'Next.js', 'Tailwind CSS', 'Node.js', 'AWS', 'Docker'],
-        highlights: [
-          'Progressive Web Applications (PWAs)',
-          'Web3 gaming interfaces & NFT marketplaces',
-          'E-commerce with seamless payment integration',
-          'Custom CMS and admin dashboards',
-        ],
-      },
-    },
-    {
-      id: 2,
-      name: 'Blockchain Solutions',
-      tagline: '5 years of Web3 expertise',
-      brief:
-        'Smart contracts, DeFi protocols, NFT platforms, and Web3 integrations. Secure, scalable, and user-friendly decentralized solutions.',
-      details: {
-        expertise: 'From concept to mainnet deployment',
-        tech: ['Solidity', 'Rust', 'Ethereum', 'Polygon', 'Solana', 'Arbitrum'],
-        highlights: [
-          'Smart Contract Development & Audits',
-          'NFT Platform Architecture & Minting',
-          'DeFi Protocol Development',
-          'Web3 Wallet Integration',
-        ],
-      },
-    },
-    {
-      id: 3,
-      name: 'Social Media Management',
-      tagline: '20+ accounts managed',
-      brief:
-        'Strategic social media management across all major platforms. We build engaged communities and amplify your brand voice.',
-      details: {
-        expertise: 'Data-driven strategy with authentic engagement',
-        tech: ['Twitter/X', 'Instagram', 'LinkedIn', 'TikTok', 'Discord', 'Telegram'],
-        highlights: [
-          'Content Strategy & Planning',
-          'Community Management & Growth',
-          'Analytics & Performance Reporting',
-          'Web3 Community Expertise',
-        ],
-      },
-    },
-    {
-      id: 4,
-      name: 'Content Creation',
-      tagline: 'AI-powered content at scale',
-      brief:
-        'From stunning graphics to cinematic videos, SEO-optimized articles to social media copy. Content that captivates and performs.',
-      details: {
-        expertise: 'High-quality content with rapid turnaround',
-        tech: ['VEO3 Video AI', 'SEO Tools', 'Design Suite', 'Copywriting AI'],
-        highlights: [
-          'AI-Generated Video Content',
-          'Social Media Graphics & Animations',
-          'SEO-Optimized Website Copy',
-          'Technical Documentation',
-        ],
-      },
+      name: 'Blockchain',
+      command: '> compile --contracts --network=mainnet',
+      output: 'Smart contracts deployed...',
+      tech: ['Solidity', 'Rust', 'Ethereum', 'Solana'],
     },
   ];
 
-  const toggleCard = (id) => {
-    setExpandedCard(expandedCard === id ? null : id);
-  };
+  const { displayedText: commandText, isComplete: commandComplete } = useTypingEffect(
+    services[activeService].command,
+    30,
+    inView
+  );
+
+  const { displayedText: outputText } = useTypingEffect(
+    services[activeService].output,
+    20,
+    commandComplete
+  );
 
   return (
-    <section id="services" className="section-padding bg-black-soft/50 relative overflow-hidden" ref={ref}>
-      {/* Subtle background accent */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-1/2 bg-primary-green/5 blur-[120px] rounded-full" />
+    <section id="services" className="pt-24 md:pt-32 pb-56 md:pb-64 bg-black-pure relative overflow-hidden" ref={ref}>
+      {/* === TOP TRANSITION: Scan line at section boundary === */}
+      {/* Scan line effect - positioned at the very top */}
+      <motion.div
+        className="absolute top-0 left-0 right-0 h-[2px] z-30 pointer-events-none"
+        style={{
+          background: 'linear-gradient(90deg, transparent 0%, rgba(0, 255, 65, 0.8) 50%, transparent 100%)',
+          boxShadow: '0 0 20px rgba(0, 255, 65, 0.5), 0 0 40px rgba(0, 255, 65, 0.3)',
+        }}
+        animate={{
+          opacity: [0.5, 1, 0.5],
+        }}
+        transition={{
+          duration: 2,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+      />
 
-      <div className="container-custom relative">
-        {/* Section Header */}
+      {/* Gradient fade below scan line */}
+      <div className="absolute top-0 left-0 right-0 h-32 pointer-events-none z-20">
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)',
+          }}
+        />
+      </div>
+
+      {/* Matrix rain background - more visible */}
+      <div className="absolute inset-0 overflow-hidden opacity-60">
+        {matrixColumns.map((col) => (
+          <MatrixColumn
+            key={col.id}
+            delay={col.delay}
+            duration={col.duration}
+            left={col.left}
+            chars={col.chars}
+          />
+        ))}
+      </div>
+
+      {/* Grid overlay */}
+      <div className="absolute inset-0 opacity-[0.03]">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(0, 255, 65, 1) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(0, 255, 65, 1) 1px, transparent 1px)
+            `,
+            backgroundSize: '80px 80px',
+          }}
+        />
+      </div>
+
+      <div className="container-custom relative z-10">
+        {/* Section Header - Minimal */}
         <motion.div
           className="text-center mb-16"
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : {}}
+          transition={{ duration: 0.8 }}
         >
-          <p className="text-primary-green text-xs md:text-sm uppercase tracking-widest mb-3 font-mono">
-            WHAT WE DO
-          </p>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white-pure mb-4">
-            Comprehensive Digital Solutions
+          <div className="inline-flex items-center gap-3 mb-4">
+            <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-primary-green" />
+            <span className="text-primary-green text-sm font-mono">DEVELOPMENT</span>
+            <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-primary-green" />
+          </div>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white-pure">
+            We <span className="text-primary-green">Code</span>
           </h2>
-          <p className="text-white-muted text-base md:text-lg max-w-3xl mx-auto">
-            From blockchain architecture to pixel-perfect interfaces, we deliver technical
-            excellence across every digital touchpoint.
-          </p>
         </motion.div>
 
-        {/* Service Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-          {services.map((service, index) => (
-            <motion.div
-              key={service.id}
-              className="relative group"
-              initial={{ opacity: 0, y: 30 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              onMouseEnter={() => setHoveredCard(service.id)}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              {/* Card container with enhanced styling */}
-              <div
-                className={`relative bg-black-card border rounded-lg p-6 md:p-8 cursor-pointer transition-all duration-500 ${
-                  expandedCard === service.id
-                    ? 'border-primary-green shadow-green-glow-sm'
-                    : 'border-white-soft/5 hover:border-primary-green/50'
-                } ${hoveredCard === service.id && expandedCard !== service.id ? 'transform -translate-y-2' : ''}`}
-                onClick={() => toggleCard(service.id)}
+        {/* Main Terminal Interface */}
+        <motion.div
+          className="max-w-4xl mx-auto"
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          {/* Service Tabs */}
+          <div className="flex gap-2 mb-4">
+            {services.map((service, index) => (
+              <button
+                key={service.id}
+                onClick={() => setActiveService(index)}
+                className={`px-6 py-3 font-mono text-sm rounded-t-lg border-t border-l border-r transition-all duration-300 ${
+                  activeService === index
+                    ? 'bg-black-elevated border-primary-green/50 text-primary-green'
+                    : 'bg-black-card/50 border-white-soft/10 text-white-dim hover:text-primary-green'
+                }`}
               >
-                {/* Corner accent (appears on hover) */}
-                <div
-                  className={`absolute top-0 left-0 w-16 h-16 border-l-2 border-t-2 border-primary-green rounded-tl-lg transition-opacity duration-300 ${
-                    hoveredCard === service.id || expandedCard === service.id ? 'opacity-100' : 'opacity-0'
-                  }`}
-                />
-                <div
-                  className={`absolute bottom-0 right-0 w-16 h-16 border-r-2 border-b-2 border-primary-green rounded-br-lg transition-opacity duration-300 ${
-                    hoveredCard === service.id || expandedCard === service.id ? 'opacity-100' : 'opacity-0'
-                  }`}
-                />
+                {service.name}
+              </button>
+            ))}
+          </div>
 
-                {/* Glow effect on hover */}
-                {(hoveredCard === service.id || expandedCard === service.id) && (
-                  <div className="absolute inset-0 bg-primary-green/5 rounded-lg -z-10 blur-xl" />
-                )}
-
-                {/* Service Name with number */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-primary-green font-mono text-sm font-bold opacity-60">
-                        {String(index + 1).padStart(2, '0')}
-                      </span>
-                      <div className="h-[1px] flex-1 bg-gradient-to-r from-primary-green/50 to-transparent" />
-                    </div>
-                    <h3 className="text-2xl md:text-3xl font-bold text-white-pure mb-2 group-hover:text-primary-green transition-colors duration-300">
-                      {service.name}
-                    </h3>
-                    <p className="text-primary-green text-sm font-mono">{service.tagline}</p>
-                  </div>
-                </div>
-
-                {/* Brief Description */}
-                <p className="text-white-muted text-sm md:text-base mb-6 leading-relaxed">
-                  {service.brief}
-                </p>
-
-                {/* Expandable Details */}
-                <AnimatePresence>
-                  {expandedCard === service.id && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.4, ease: 'easeInOut' }}
-                      className="overflow-hidden"
-                    >
-                      <div className="pt-6 border-t border-primary-green/20 space-y-4">
-                        {/* Expertise */}
-                        <div>
-                          <p className="text-primary-green text-xs uppercase tracking-wide mb-2 font-mono">
-                            Expertise
-                          </p>
-                          <p className="text-white-soft text-sm">{service.details.expertise}</p>
-                        </div>
-
-                        {/* Tech Stack */}
-                        <div>
-                          <p className="text-primary-green text-xs uppercase tracking-wide mb-2 font-mono">
-                            Tech Stack
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {service.details.tech.map((tech, i) => (
-                              <span
-                                key={i}
-                                className="px-3 py-1 bg-black-elevated border border-primary-green/20 rounded-full text-white-muted text-xs"
-                              >
-                                {tech}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Key Services */}
-                        <div>
-                          <p className="text-primary-green text-xs uppercase tracking-wide mb-2 font-mono">
-                            Key Services
-                          </p>
-                          <ul className="space-y-2">
-                            {service.details.highlights.map((highlight, i) => (
-                              <li key={i} className="flex items-start gap-2 text-white-dim text-sm">
-                                <span className="text-primary-green mt-1">▸</span>
-                                <span>{highlight}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* Learn More Button */}
-                <div className="flex items-center justify-between mt-6 pt-6 border-t border-white-soft/5">
-                  <button
-                    className="group/btn flex items-center gap-2 text-primary-green hover:text-primary-green-light transition-all duration-300 relative"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleCard(service.id);
-                    }}
-                  >
-                    {/* Animated background */}
-                    <span className="absolute inset-0 -left-2 -right-2 bg-primary-green/10 rounded opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
-
-                    {/* Text */}
-                    <span className="relative font-medium text-sm">
-                      {expandedCard === service.id ? 'Show Less' : 'Learn More'}
-                    </span>
-
-                    {/* Animated arrow */}
-                    <svg
-                      className={`relative w-4 h-4 transition-transform duration-300 ${
-                        expandedCard === service.id ? 'rotate-180' : 'group-hover/btn:translate-x-1'
-                      }`}
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      {expandedCard === service.id ? (
-                        <path d="M19 9l-7 7-7-7" />
-                      ) : (
-                        <path d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                      )}
-                    </svg>
-
-                    {/* Animated underline */}
-                    <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-primary-green transition-all duration-300 group-hover/btn:w-full" />
-                  </button>
-
-                  {/* Status indicator */}
-                  <div className="flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary-green animate-pulse" />
-                    <div className="w-1 h-1 rounded-full bg-primary-green/60 animate-pulse" style={{ animationDelay: '0.3s' }} />
-                    <div className="w-0.5 h-0.5 rounded-full bg-primary-green/40 animate-pulse" style={{ animationDelay: '0.6s' }} />
-                  </div>
-                </div>
+          {/* Terminal Window */}
+          <div className="bg-black-elevated rounded-lg border border-primary-green/20 overflow-hidden shadow-green-glow-sm">
+            {/* Terminal Header */}
+            <div className="flex items-center justify-between px-4 py-3 bg-black-card border-b border-primary-green/20">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-primary-green/60" />
+                <div className="w-3 h-3 rounded-full bg-primary-green/40" />
+                <div className="w-3 h-3 rounded-full bg-primary-green/20" />
               </div>
-            </motion.div>
-          ))}
-        </div>
+              <span className="text-primary-green/60 text-xs font-mono">mdn-cli v2.0</span>
+            </div>
+
+            {/* Terminal Content */}
+            <div className="p-6 md:p-8 font-mono min-h-[300px]">
+              <motion.div
+                key={activeService}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                {/* Command Line */}
+                <div className="flex items-start gap-2 mb-6">
+                  <span className="text-primary-green">❯</span>
+                  <span className="text-white-pure">{commandText}</span>
+                  {!commandComplete && (
+                    <span className="w-2 h-5 bg-primary-green animate-pulse" />
+                  )}
+                </div>
+
+                {/* Output */}
+                {commandComplete && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="space-y-4"
+                  >
+                    <div className="text-primary-green/80 text-sm">{outputText}</div>
+
+                    {/* Tech Stack Visual */}
+                    <div className="pt-6 border-t border-primary-green/10">
+                      <div className="text-white-dim text-xs mb-4">STACK:</div>
+                      <div className="flex flex-wrap gap-3">
+                        {services[activeService].tech.map((tech, i) => (
+                          <motion.div
+                            key={tech}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: i * 0.1 }}
+                            className="px-4 py-2 bg-primary-green/10 border border-primary-green/30 rounded text-primary-green text-sm"
+                          >
+                            {tech}
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Status */}
+                    <div className="flex items-center gap-2 pt-4">
+                      <div className="w-2 h-2 bg-primary-green rounded-full animate-pulse" />
+                      <span className="text-primary-green text-xs">READY</span>
+                    </div>
+                  </motion.div>
+                )}
+              </motion.div>
+            </div>
+          </div>
+
+        </motion.div>
+      </div>
+
+      {/* === BOTTOM TRANSITION: Glowing energy line to Growth === */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none overflow-hidden">
+        {/* Gradient fade out */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(180deg, transparent 0%, rgba(20, 20, 25, 0.5) 50%, rgba(20, 20, 25, 1) 100%)',
+          }}
+        />
+
+        {/* Central glowing energy line */}
+        <motion.div
+          className="absolute left-[10%] right-[10%] h-[2px]"
+          style={{
+            top: '64px',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(0, 255, 65, 0.6) 20%, rgba(0, 255, 65, 1) 50%, rgba(0, 255, 65, 0.6) 80%, transparent 100%)',
+            boxShadow: '0 0 20px rgba(0, 255, 65, 0.6), 0 0 40px rgba(0, 255, 65, 0.3)',
+          }}
+          animate={{
+            scaleX: [0.85, 1, 0.85],
+            opacity: [0.7, 1, 0.7],
+          }}
+          transition={{
+            duration: 2.5,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
+
+        {/* Data flow particles around center line */}
+        {Array.from({ length: 15 }, (_, i) => (
+          <motion.div
+            key={`data-${i}`}
+            className="absolute w-1.5 h-1.5 rounded-full"
+            style={{
+              left: `${8 + (i * 6)}%`,
+              top: '62px',
+              background: 'radial-gradient(circle, rgba(0, 255, 65, 0.9) 0%, rgba(0, 255, 65, 0) 70%)',
+              boxShadow: '0 0 10px rgba(0, 255, 65, 0.6)',
+            }}
+            animate={{
+              y: [-12, 12, -12],
+              opacity: [0.3, 0.9, 0.3],
+              scale: [0.8, 1.3, 0.8],
+            }}
+            transition={{
+              duration: 2 + (i % 3) * 0.5,
+              repeat: Infinity,
+              delay: i * 0.12,
+              ease: 'easeInOut',
+            }}
+          />
+        ))}
       </div>
     </section>
   );

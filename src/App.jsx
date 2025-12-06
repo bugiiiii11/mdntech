@@ -3,6 +3,7 @@ import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Hero from './components/sections/Hero';
 import Services from './components/sections/Services';
+import Growth from './components/sections/Growth';
 import Portfolio from './components/sections/Portfolio';
 import Stats from './components/sections/Stats';
 import About from './components/sections/About';
@@ -21,6 +22,7 @@ function App() {
       <main>
         <Hero />
         <Services />
+        <Growth />
         <Portfolio />
         <Stats />
         <About />

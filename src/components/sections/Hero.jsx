@@ -40,11 +40,11 @@ const Hero = () => {
   return (
     <section
       id="hero"
-      className="min-h-screen flex items-center justify-center section-padding relative"
+      className="min-h-screen flex flex-col justify-center section-padding relative pt-32"
       ref={ref}
     >
       <motion.div
-        className="container-custom text-center max-w-5xl"
+        className="container-custom text-center max-w-5xl mt-16 md:mt-24"
         variants={containerVariants}
         initial="hidden"
         animate={inView ? 'visible' : 'hidden'}
@@ -64,8 +64,6 @@ const Hero = () => {
           variants={itemVariants}
           className="text-lg md:text-xl lg:text-2xl text-white-muted mb-4 max-w-3xl mx-auto"
         >
-          Expert web3 development, blockchain solutions, and AI-powered digital services.
-          <br className="hidden md:block" />
           We turn startup visions into market-ready products.
         </motion.p>
 
@@ -73,11 +71,21 @@ const Hero = () => {
         <motion.div variants={itemVariants} className="mt-10">
           <button
             onClick={() => scrollToSection('contact')}
-            className="btn-primary text-base md:text-lg px-8 py-4 inline-flex items-center gap-2"
+            className="group/cta relative bg-black-card border-2 border-primary-green text-primary-green font-semibold rounded-md transition-all duration-500 overflow-hidden text-base md:text-lg px-8 py-4 inline-flex items-center gap-2 shadow-green-glow-sm"
           >
-            Transform Your Vision
+            {/* Animated background on hover */}
+            <span className="absolute inset-0 bg-primary-green transform translate-y-full group-hover/cta:translate-y-0 transition-transform duration-500 ease-out" />
+
+            {/* Corner accents */}
+            <span className="absolute top-0 left-0 w-2 h-2 border-l-2 border-t-2 border-primary-green opacity-0 group-hover/cta:opacity-100 transition-opacity duration-300" />
+            <span className="absolute bottom-0 right-0 w-2 h-2 border-r-2 border-b-2 border-primary-green opacity-0 group-hover/cta:opacity-100 transition-opacity duration-300" />
+
+            {/* Text */}
+            <span className="relative z-10 group-hover/cta:text-black-pure transition-colors duration-300">
+              Transform Your Vision
+            </span>
             <svg
-              className="w-5 h-5"
+              className="w-5 h-5 relative z-10 group-hover/cta:text-black-pure transition-colors duration-300"
               fill="none"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -90,83 +98,67 @@ const Hero = () => {
           </button>
         </motion.div>
 
-        {/* Cyberpunk Scroll Indicator */}
+        {/* Scroll Indicator - Double Chevron */}
         <motion.div
           variants={itemVariants}
-          className="mt-20 md:mt-24"
+          className="mt-20 md:mt-28"
         >
           <button
             onClick={() => scrollToSection('services')}
-            className="group relative flex flex-col items-center gap-4 mx-auto focus:outline-none"
+            className="group relative flex flex-col items-center mx-auto focus:outline-none"
             aria-label="Scroll to services"
           >
-            {/* Label */}
-            <div className="relative">
-              <span className="text-xs uppercase tracking-widest text-white-dim group-hover:text-primary-green transition-colors duration-300 font-mono">
-                Discover More
-              </span>
-              {/* Underline animation */}
-              <div className="absolute -bottom-1 left-0 w-0 h-[1px] bg-primary-green transition-all duration-300 group-hover:w-full" />
-            </div>
-
-            {/* Cyberpunk Arrow Container */}
-            <div className="relative w-16 h-16">
-              {/* Outer hexagon frame */}
-              <svg
-                className="absolute inset-0 w-full h-full text-primary-green/30 group-hover:text-primary-green/60 transition-colors duration-300"
-                viewBox="0 0 100 100"
+            {/* Double Chevron Arrow - scales up on hover */}
+            <div className="relative flex flex-col items-center transition-transform duration-300 ease-out group-hover:scale-125">
+              {/* First chevron */}
+              <motion.svg
+                className="w-8 h-8 text-primary-green transition-colors duration-300 group-hover:text-primary-green-light"
+                viewBox="0 0 24 24"
                 fill="none"
+                animate={{
+                  y: [0, 4, 0],
+                  opacity: [0.7, 1, 0.7],
+                }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
               >
-                <polygon
-                  points="50,5 90,30 90,70 50,95 10,70 10,30"
+                <path
+                  d="M5 9L12 16L19 9"
                   stroke="currentColor"
-                  strokeWidth="1.5"
-                  fill="none"
-                  className="group-hover:stroke-primary-green transition-colors duration-300"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
-              </svg>
+              </motion.svg>
 
-              {/* Animated corner accents */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2">
-                <div className="w-full h-full bg-primary-green rounded-full animate-pulse opacity-60" />
-              </div>
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2">
-                <div className="w-full h-full bg-primary-green rounded-full animate-pulse opacity-60" style={{ animationDelay: '0.5s' }} />
-              </div>
-
-              {/* Rotating ring */}
-              <div className="absolute inset-2 rounded-full border border-primary-green/20 group-hover:border-primary-green/40 transition-colors duration-300 animate-spin-slow" />
-
-              {/* Center arrow with glow */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="relative">
-                  {/* Glow effect */}
-                  <div className="absolute inset-0 blur-md bg-primary-green/30 group-hover:bg-primary-green/60 transition-all duration-300 rounded-full scale-150" />
-
-                  {/* Arrow icon */}
-                  <svg
-                    className="relative w-8 h-8 text-primary-green group-hover:text-primary-green-light transition-all duration-300 group-hover:translate-y-1"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2.5"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                  </svg>
-                </div>
-              </div>
-
-              {/* Scanning line effect */}
-              <div className="absolute inset-0 overflow-hidden rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-primary-green to-transparent animate-scan" />
-              </div>
+              {/* Second chevron */}
+              <motion.svg
+                className="w-8 h-8 text-primary-green -mt-4 transition-colors duration-300 group-hover:text-primary-green-light"
+                viewBox="0 0 24 24"
+                fill="none"
+                animate={{
+                  y: [0, 4, 0],
+                  opacity: [0.5, 0.9, 0.5],
+                }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0.15,
+                }}
+              >
+                <path
+                  d="M5 9L12 16L19 9"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </motion.svg>
             </div>
-
-            {/* Vertical guide lines */}
-            <div className="absolute top-8 left-1/2 -translate-x-1/2 w-[1px] h-4 bg-gradient-to-b from-primary-green/0 via-primary-green/30 to-primary-green/0" />
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[1px] h-4 bg-gradient-to-b from-primary-green/0 via-primary-green/30 to-primary-green/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </button>
         </motion.div>
       </motion.div>
