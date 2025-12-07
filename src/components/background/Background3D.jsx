@@ -13,7 +13,6 @@ const Background3D = () => {
 
     // Responsive settings
     const isMobile = window.innerWidth < 768;
-    const particleCount = isMobile ? 40 : 100;
     const gridSize = isMobile ? 40 : 60;
 
     // Set canvas size
@@ -23,68 +22,6 @@ const Background3D = () => {
     };
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
-
-    // Particle system
-    const particles = [];
-    class Particle {
-      constructor() {
-        this.reset();
-        this.y = Math.random() * canvas.height;
-      }
-
-      reset() {
-        this.x = Math.random() * canvas.width;
-        this.y = -10;
-        this.z = Math.random() * 1000 + 500;
-        this.size = Math.random() * 2 + 0.5;
-        this.speedY = Math.random() * 0.3 + 0.1;
-        this.speedX = (Math.random() - 0.5) * 0.2;
-        this.opacity = Math.random() * 0.4 + 0.1;
-        this.pulseSpeed = Math.random() * 0.02 + 0.01;
-        this.pulsePhase = Math.random() * Math.PI * 2;
-      }
-
-      update() {
-        this.y += this.speedY;
-        this.x += this.speedX;
-        this.pulsePhase += this.pulseSpeed;
-
-        if (this.y > canvas.height + 20) {
-          this.reset();
-        }
-        if (this.x < -20 || this.x > canvas.width + 20) {
-          this.x = Math.random() * canvas.width;
-        }
-      }
-
-      draw() {
-        const scale = 1 - this.z / 1500;
-        const size = this.size * scale;
-        const pulse = Math.sin(this.pulsePhase) * 0.3 + 0.7;
-
-        // Glow effect
-        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, size * 3);
-        gradient.addColorStop(0, `rgba(0, 255, 65, ${this.opacity * scale * pulse * 0.8})`);
-        gradient.addColorStop(0.5, `rgba(0, 255, 65, ${this.opacity * scale * pulse * 0.3})`);
-        gradient.addColorStop(1, 'rgba(0, 255, 65, 0)');
-
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, size * 3, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Core
-        ctx.fillStyle = `rgba(0, 255, 65, ${this.opacity * scale * pulse})`;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    // Initialize particles
-    for (let i = 0; i < particleCount; i++) {
-      particles.push(new Particle());
-    }
 
     // 3D Grid system
     const drawGrid = (time) => {
@@ -142,44 +79,16 @@ const Background3D = () => {
       }
     };
 
-    // Draw connections between nearby particles
-    const drawConnections = () => {
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          if (distance < 150) {
-            const opacity = (1 - distance / 150) * 0.15;
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(0, 255, 65, ${opacity})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
-      }
-    };
-
     // Animation loop
     const animate = () => {
       time += 1;
 
-      // Fade effect for trails
+      // Clear canvas with fade effect
       ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Draw grid (behind everything)
+      // Draw grid only
       drawGrid(time);
-
-      // Draw particles and connections
-      particles.forEach(particle => {
-        particle.update();
-        particle.draw();
-      });
-      drawConnections();
 
       animationFrameId = requestAnimationFrame(animate);
     };

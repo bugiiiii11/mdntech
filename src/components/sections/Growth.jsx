@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 
 // 3D Wave Canvas Component
@@ -27,10 +27,8 @@ const WaveBackground = () => {
       const width = canvas.offsetWidth;
       const height = canvas.offsetHeight;
 
-      // Clear canvas
       ctx.clearRect(0, 0, width, height);
 
-      // Draw multiple wave layers for depth
       const layers = [
         { amplitude: 30, frequency: 0.008, speed: 0.015, opacity: 0.08, yOffset: 0.3 },
         { amplitude: 25, frequency: 0.012, speed: 0.02, opacity: 0.06, yOffset: 0.5 },
@@ -59,7 +57,6 @@ const WaveBackground = () => {
         ctx.lineTo(0, height);
         ctx.closePath();
 
-        // Gradient fill
         const gradient = ctx.createLinearGradient(0, 0, width, height);
         gradient.addColorStop(0, `rgba(0, 255, 65, ${layer.opacity})`);
         gradient.addColorStop(0.5, `rgba(0, 200, 80, ${layer.opacity * 0.7})`);
@@ -69,7 +66,6 @@ const WaveBackground = () => {
         ctx.fill();
       });
 
-      // Draw flowing particles
       const particleCount = 15;
       for (let i = 0; i < particleCount; i++) {
         const x = ((time * 20 + i * (width / particleCount)) % (width + 50)) - 25;
@@ -83,7 +79,6 @@ const WaveBackground = () => {
         ctx.fillStyle = `rgba(0, 255, 65, ${opacity})`;
         ctx.fill();
 
-        // Glow effect
         ctx.beginPath();
         ctx.arc(x, y, size * 3, 0, Math.PI * 2);
         const glowGradient = ctx.createRadialGradient(x, y, 0, x, y, size * 3);
@@ -115,102 +110,39 @@ const WaveBackground = () => {
 };
 
 const Growth = () => {
-  const [activeTab, setActiveTab] = useState(0);
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
-  const services = [
-    {
-      id: 0,
-      name: 'Social Media',
-      description: 'Strategic presence across all platforms',
-      platforms: ['Twitter/X', 'Discord', 'Telegram', 'Instagram', 'LinkedIn'],
-      features: [
-        'Community Management',
-        'Content Strategy',
-        'Analytics & Growth',
-        'Brand Voice',
-      ],
-    },
-    {
-      id: 1,
-      name: 'Content Creation',
-      description: 'AI-powered content at scale',
-      platforms: ['Video AI', 'Graphics', 'Copywriting', 'SEO'],
-      features: [
-        'AI Video Generation',
-        'Social Graphics',
-        'Website Copy',
-        'Documentation',
-      ],
-    },
-  ];
-
-  // Sample portfolio items - replace with real content
-  const portfolioItems = [
-    {
-      type: 'video',
-      thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=300&fit=crop',
-      title: 'Brand Video',
-      category: 'Video Production',
-    },
-    {
-      type: 'graphic',
-      thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=300&fit=crop',
-      title: 'NFT Collection',
-      category: 'Digital Art',
-    },
-    {
-      type: 'graphic',
-      thumbnail: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=400&h=300&fit=crop',
-      title: 'Social Campaign',
-      category: 'Marketing',
-    },
-    {
-      type: 'video',
-      thumbnail: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=400&h=300&fit=crop',
-      title: 'Product Launch',
-      category: 'Video Production',
-    },
+  // Portfolio showcase items - videos
+  const showcaseItems = [
+    { id: 1, src: '/vid1.mp4' },
+    { id: 2, src: '/vid2.mp4' },
+    { id: 3, src: '/vid3.mp4' },
+    { id: 4, src: '/vid4.mp4' },
   ];
 
   return (
-    <section className="pt-12 md:pt-16 pb-24 md:pb-32 bg-black-elevated relative overflow-hidden" ref={ref}>
+    <section id="growth" className="pt-12 md:pt-16 pb-32 md:pb-40 bg-black-elevated relative overflow-hidden" ref={ref}>
       {/* 3D Wave Background */}
       <WaveBackground />
 
-      {/* === TOP TRANSITION: Receiving particles from Development === */}
+      {/* === TOP TRANSITION === */}
       <div className="absolute top-0 left-0 right-0 h-32 pointer-events-none z-20">
-        {/* Gradient fade from Development section */}
         <div
           className="absolute inset-0"
           style={{
             background: 'linear-gradient(180deg, rgba(20, 20, 25, 1) 0%, rgba(20, 20, 25, 0.6) 50%, transparent 100%)',
           }}
         />
-
-        {/* Incoming particles from above - continuing from the energy line */}
         {Array.from({ length: 15 }, (_, i) => (
           <motion.div
             key={i}
             className="absolute w-1 h-1 bg-primary-green rounded-full"
-            style={{
-              left: `${8 + (i * 6)}%`,
-              top: '0px',
-            }}
-            animate={{
-              y: [0, 40, 80],
-              opacity: [0.6, 0.3, 0],
-              scale: [1, 0.7, 0.3],
-            }}
-            transition={{
-              duration: 2.5 + (i % 3),
-              repeat: Infinity,
-              delay: i * 0.12,
-              ease: 'easeOut',
-            }}
+            style={{ left: `${8 + (i * 6)}%`, top: '0px' }}
+            animate={{ y: [0, 40, 80], opacity: [0.6, 0.3, 0], scale: [1, 0.7, 0.3] }}
+            transition={{ duration: 2.5 + (i % 3), repeat: Infinity, delay: i * 0.12, ease: 'easeOut' }}
           />
         ))}
       </div>
@@ -221,7 +153,7 @@ const Growth = () => {
       <div className="container-custom relative z-10">
         {/* Section Header */}
         <motion.div
-          className="text-center mb-16"
+          className="text-center mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
@@ -231,175 +163,238 @@ const Growth = () => {
             <span className="text-primary-green text-sm font-mono">GROWTH</span>
             <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-primary-green" />
           </div>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white-pure">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white-pure mb-6">
             We <span className="text-primary-green">Create</span>
           </h2>
+
+          {/* Subtitle - explaining the value proposition */}
+          <p className="text-white-muted text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
+            Elevate your brand with stunning visuals and strategic social presence.
+            We craft compelling content that captures attention and build engaged communities
+            that drive real growth for your project.
+          </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
-          {/* Left: Service Info */}
+        {/* Two Service Cards - Cyberpunk Style */}
+        <div className="grid md:grid-cols-2 gap-6 lg:gap-8 mb-16">
+
+          {/* Content Creation Card */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={inView ? { opacity: 1, x: 0 } : {}}
+            initial={{ opacity: 0, y: 30 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
+            className="group relative bg-black-pure/80 backdrop-blur-sm border border-primary-green/20 p-8 hover:border-primary-green/50 transition-all duration-500"
+            style={{
+              clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px))',
+            }}
           >
-            {/* Tabs */}
-            <div className="flex gap-4 mb-8">
-              {services.map((service, index) => (
-                <button
-                  key={service.id}
-                  onClick={() => setActiveTab(index)}
-                  className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 ${
-                    activeTab === index
-                      ? 'bg-primary-green text-black-pure'
-                      : 'bg-white-soft/5 text-white-muted hover:bg-white-soft/10 hover:text-white-pure'
-                  }`}
+            {/* Corner accents - always visible */}
+            <div className="absolute top-0 left-0 w-16 h-[1px] bg-gradient-to-r from-primary-green to-transparent" />
+            <div className="absolute top-0 left-0 w-[1px] h-16 bg-gradient-to-b from-primary-green to-transparent" />
+            <div className="absolute bottom-0 right-0 w-16 h-[1px] bg-gradient-to-l from-primary-green to-transparent" />
+            <div className="absolute bottom-0 right-0 w-[1px] h-16 bg-gradient-to-t from-primary-green to-transparent" />
+
+            {/* Glowing line accent */}
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary-green/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+            {/* Section number */}
+            <div className="absolute top-4 right-6 font-mono text-primary-green/30 text-sm">01</div>
+
+            <h3 className="text-2xl font-bold text-white-pure mb-1 tracking-wide">Content Creation</h3>
+            <div className="w-12 h-[2px] bg-primary-green mb-4" />
+
+            <p className="text-white-muted mb-6 leading-relaxed">
+              Eye-catching graphics, engaging videos, and scroll-stopping visuals designed
+              to make your project stand out across all platforms.
+            </p>
+
+            {/* Features List */}
+            <ul className="space-y-3">
+              {['Motion graphics & animations', 'Social media visuals', 'Promotional videos', 'Brand identity assets'].map((feature, i) => (
+                <motion.li
+                  key={feature}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={inView ? { opacity: 1, x: 0 } : {}}
+                  transition={{ delay: 0.4 + i * 0.1 }}
+                  className="flex items-center gap-3 text-white-soft font-light"
                 >
-                  {service.name}
-                </button>
+                  <span className="text-primary-green font-mono text-xs">{`>`}</span>
+                  <span>{feature}</span>
+                </motion.li>
               ))}
-            </div>
+            </ul>
 
-            {/* Service Details */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-8"
-              >
-                <p className="text-white-muted text-lg">
-                  {services[activeTab].description}
-                </p>
-
-                {/* Platforms/Tools */}
-                <div>
-                  <h4 className="text-white-dim text-xs uppercase tracking-wider mb-4">
-                    {activeTab === 0 ? 'Platforms' : 'Capabilities'}
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {services[activeTab].platforms.map((platform, i) => (
-                      <motion.span
-                        key={platform}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: i * 0.05 }}
-                        className="px-4 py-2 bg-black-card border border-white-soft/10 rounded-full text-white-soft text-sm"
-                      >
-                        {platform}
-                      </motion.span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Features */}
-                <div>
-                  <h4 className="text-white-dim text-xs uppercase tracking-wider mb-4">
-                    What We Deliver
-                  </h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    {services[activeTab].features.map((feature, i) => (
-                      <motion.div
-                        key={feature}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                        className="flex items-center gap-2"
-                      >
-                        <div className="w-1.5 h-1.5 bg-primary-green rounded-full" />
-                        <span className="text-white-soft text-sm">{feature}</span>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* CTA */}
-                <button
-                  onClick={() => {
-                    const element = document.getElementById('contact');
-                    if (element) element.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className="inline-flex items-center gap-2 text-primary-green hover:text-primary-green-light transition-colors duration-300 font-medium group"
-                >
-                  <span>Discuss your project</span>
-                  <svg
-                    className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </button>
-              </motion.div>
-            </AnimatePresence>
+            {/* Bottom scan line effect on hover */}
+            <motion.div
+              className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary-green to-transparent opacity-0 group-hover:opacity-60"
+              animate={{ x: ['-100%', '100%'] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+            />
           </motion.div>
 
-          {/* Right: Portfolio Grid */}
+          {/* Social Media Card */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={inView ? { opacity: 1, x: 0 } : {}}
+            initial={{ opacity: 0, y: 30 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.3 }}
+            className="group relative bg-black-pure/80 backdrop-blur-sm border border-primary-green/20 p-8 hover:border-primary-green/50 transition-all duration-500"
+            style={{
+              clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)',
+            }}
           >
-            <div className="grid grid-cols-2 gap-4">
-              {portfolioItems.map((item, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={inView ? { opacity: 1, scale: 1 } : {}}
-                  transition={{ delay: 0.4 + index * 0.1 }}
-                  className="group relative aspect-[4/3] rounded-lg overflow-hidden cursor-pointer"
+            {/* Corner accents - always visible */}
+            <div className="absolute top-0 right-0 w-16 h-[1px] bg-gradient-to-l from-primary-green to-transparent" />
+            <div className="absolute top-0 right-0 w-[1px] h-16 bg-gradient-to-b from-primary-green to-transparent" />
+            <div className="absolute bottom-0 left-0 w-16 h-[1px] bg-gradient-to-r from-primary-green to-transparent" />
+            <div className="absolute bottom-0 left-0 w-[1px] h-16 bg-gradient-to-t from-primary-green to-transparent" />
+
+            {/* Glowing line accent */}
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary-green/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+            {/* Section number */}
+            <div className="absolute top-4 right-6 font-mono text-primary-green/30 text-sm">02</div>
+
+            <h3 className="text-2xl font-bold text-white-pure mb-1 tracking-wide">Social Media</h3>
+            <div className="w-12 h-[2px] bg-primary-green mb-4" />
+
+            <p className="text-white-muted mb-6 leading-relaxed">
+              Build a powerful online presence with strategic content planning,
+              active community management, and consistent engagement that grows your audience.
+            </p>
+
+            {/* Features List */}
+            <ul className="space-y-3">
+              {['Content strategy & planning', 'Community management', 'Regular posts & articles', 'Active moderation team'].map((feature, i) => (
+                <motion.li
+                  key={feature}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={inView ? { opacity: 1, x: 0 } : {}}
+                  transition={{ delay: 0.5 + i * 0.1 }}
+                  className="flex items-center gap-3 text-white-soft font-light"
                 >
-                  {/* Image */}
-                  <img
-                    src={item.thumbnail}
-                    alt={item.title}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black-pure via-black-pure/50 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
-
-                  {/* Play button for videos */}
-                  {item.type === 'video' && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-12 h-12 rounded-full bg-primary-green/20 backdrop-blur-sm flex items-center justify-center border border-primary-green/50 group-hover:scale-110 transition-transform duration-300">
-                        <svg className="w-5 h-5 text-primary-green ml-1" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Info */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <p className="text-primary-green text-xs mb-1">{item.category}</p>
-                    <h4 className="text-white-pure font-medium">{item.title}</h4>
-                  </div>
-
-                  {/* Border on hover */}
-                  <div className="absolute inset-0 border-2 border-primary-green opacity-0 group-hover:opacity-100 rounded-lg transition-opacity duration-300" />
-                </motion.div>
+                  <span className="text-primary-green font-mono text-xs">{`>`}</span>
+                  <span>{feature}</span>
+                </motion.li>
               ))}
-            </div>
+            </ul>
 
-            {/* View More */}
-            <div className="text-center mt-6">
-              <button
-                onClick={() => {
-                  const element = document.getElementById('portfolio');
-                  if (element) element.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="text-white-dim hover:text-primary-green text-sm transition-colors duration-300"
-              >
-                View full portfolio →
-              </button>
-            </div>
+            {/* Bottom scan line effect on hover */}
+            <motion.div
+              className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary-green to-transparent opacity-0 group-hover:opacity-60"
+              animate={{ x: ['-100%', '100%'] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+            />
           </motion.div>
         </div>
+
+        {/* Video Showcase Grid - 4 squares for videos */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.5 }}
+        >
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {showcaseItems.map((item, index) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={inView ? { opacity: 1, scale: 1 } : {}}
+                transition={{ delay: 0.6 + index * 0.1 }}
+                className="group relative aspect-square overflow-hidden cursor-pointer bg-black-card border border-primary-green/20 hover:border-primary-green/50 transition-all duration-300"
+                style={{
+                  clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))',
+                }}
+              >
+                {/* Video - plays only on hover */}
+                <video
+                  src={item.src}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loop
+                  muted
+                  playsInline
+                  onMouseEnter={(e) => e.target.play()}
+                  onMouseLeave={(e) => { e.target.pause(); e.target.currentTime = 0; }}
+                />
+
+                {/* Overlay gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black-pure/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                {/* Corner accents */}
+                <div className="absolute top-0 left-0 w-8 h-[1px] bg-primary-green/50" />
+                <div className="absolute top-0 left-0 w-[1px] h-8 bg-primary-green/50" />
+                <div className="absolute bottom-0 right-0 w-8 h-[1px] bg-primary-green/50" />
+                <div className="absolute bottom-0 right-0 w-[1px] h-8 bg-primary-green/50" />
+
+                {/* Video number indicator */}
+                <div className="absolute bottom-3 left-3 text-xs font-mono text-primary-green/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  #{String(index + 1).padStart(2, '0')}
+                </div>
+
+                {/* Scan line on hover */}
+                <motion.div
+                  className="absolute top-0 left-0 right-0 h-[1px] bg-primary-green/60 opacity-0 group-hover:opacity-100"
+                  animate={{ y: [0, 200, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                />
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+
+      {/* === BOTTOM TRANSITION to About === */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none overflow-hidden">
+        {/* Gradient fade out */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(180deg, transparent 0%, rgba(10, 10, 12, 0.5) 50%, rgba(10, 10, 12, 1) 100%)',
+          }}
+        />
+
+        {/* Data flow particles */}
+        {Array.from({ length: 15 }, (_, i) => (
+          <motion.div
+            key={`data-${i}`}
+            className="absolute w-1.5 h-1.5 rounded-full"
+            style={{
+              left: `${8 + (i * 6)}%`,
+              top: '62px',
+              background: 'radial-gradient(circle, rgba(0, 255, 65, 0.9) 0%, rgba(0, 255, 65, 0) 70%)',
+              boxShadow: '0 0 10px rgba(0, 255, 65, 0.6)',
+            }}
+            animate={{
+              y: [-12, 12, -12],
+              opacity: [0.3, 0.9, 0.3],
+              scale: [0.8, 1.3, 0.8],
+            }}
+            transition={{
+              duration: 2 + (i % 3) * 0.5,
+              repeat: Infinity,
+              delay: i * 0.12,
+              ease: 'easeInOut',
+            }}
+          />
+        ))}
+
+        {/* Central glowing energy line */}
+        <motion.div
+          className="absolute left-[10%] right-[10%] h-[2px]"
+          style={{
+            top: '102px',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(0, 255, 65, 0.6) 20%, rgba(0, 255, 65, 1) 50%, rgba(0, 255, 65, 0.6) 80%, transparent 100%)',
+            boxShadow: '0 0 20px rgba(0, 255, 65, 0.6), 0 0 40px rgba(0, 255, 65, 0.3)',
+          }}
+          animate={{
+            scaleX: [0.85, 1, 0.85],
+            opacity: [0.7, 1, 0.7],
+          }}
+          transition={{
+            duration: 2.5,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
       </div>
     </section>
   );

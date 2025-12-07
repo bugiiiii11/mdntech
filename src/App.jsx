@@ -4,8 +4,6 @@ import Footer from './components/layout/Footer';
 import Hero from './components/sections/Hero';
 import Services from './components/sections/Services';
 import Growth from './components/sections/Growth';
-import Portfolio from './components/sections/Portfolio';
-import Stats from './components/sections/Stats';
 import About from './components/sections/About';
 import Contact from './components/sections/Contact';
 
@@ -23,8 +21,6 @@ function App() {
         <Hero />
         <Services />
         <Growth />
-        <Portfolio />
-        <Stats />
         <About />
         <Contact />
       </main>

@@ -23,10 +23,9 @@ const Header = () => {
   };
 
   const menuItems = [
-    { label: 'Services', id: 'services' },
-    { label: 'Portfolio', id: 'portfolio' },
+    { label: 'Development', id: 'services' },
+    { label: 'Growth', id: 'growth' },
     { label: 'About', id: 'about' },
-    { label: 'Contact', id: 'contact' },
   ];
 
   return (

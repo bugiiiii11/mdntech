@@ -1,38 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-
-// Typing animation hook
-const useTypingEffect = (text, speed = 50, startTyping = true) => {
-  const [displayedText, setDisplayedText] = useState('');
-  const [isComplete, setIsComplete] = useState(false);
-
-  useEffect(() => {
-    if (!startTyping) {
-      setDisplayedText('');
-      setIsComplete(false);
-      return;
-    }
-
-    let index = 0;
-    setDisplayedText('');
-    setIsComplete(false);
-
-    const timer = setInterval(() => {
-      if (index < text.length) {
-        setDisplayedText(text.slice(0, index + 1));
-        index++;
-      } else {
-        setIsComplete(true);
-        clearInterval(timer);
-      }
-    }, speed);
-
-    return () => clearInterval(timer);
-  }, [text, speed, startTyping]);
-
-  return { displayedText, isComplete };
-};
 
 // Generate stable matrix characters once
 const generateMatrixChars = (length) => {
@@ -87,30 +55,33 @@ const Services = () => {
     {
       id: 0,
       name: 'Web & App',
-      command: '> deploy --stack=react,next,node',
-      output: 'Building scalable applications...',
-      tech: ['React', 'Next.js', 'Node.js', 'AWS'],
+      description: 'Full-stack development for modern web applications and mobile apps. We architect scalable solutions using cutting-edge frameworks, implement responsive designs, and deploy to cloud infrastructure.',
+      features: [
+        'Custom web applications & SPAs',
+        'Mobile apps (React Native, Flutter)',
+        'REST APIs & GraphQL backends',
+        'Database design (PostgreSQL, MongoDB)',
+        'Cloud infrastructure (AWS, Vercel)',
+        'CI/CD pipelines & DevOps',
+      ],
+      tech: ['React', 'Next.js', 'Node.js', 'PostgreSQL', 'AWS'],
     },
     {
       id: 1,
       name: 'Blockchain',
-      command: '> compile --contracts --network=mainnet',
-      output: 'Smart contracts deployed...',
-      tech: ['Solidity', 'Rust', 'Ethereum', 'Solana'],
+      description: 'End-to-end blockchain development from smart contracts to dApp interfaces. We build secure, audited solutions on major networks with seamless Web3 integration. Our team has hands-on experience launching production-ready projects across multiple chains.',
+      features: [
+        'Custom smart contracts',
+        'Multi-chain deployment',
+        'Web3 login & wallet integration',
+        'Tokenomics',
+        'On-chain randomization',
+        'NFT platforms & marketplaces',
+      ],
+      tech: ['Solidity', 'Rust', 'Chainlink VRF', 'Web3.js', 'EVM Chains & Solana'],
     },
   ];
 
-  const { displayedText: commandText, isComplete: commandComplete } = useTypingEffect(
-    services[activeService].command,
-    30,
-    inView
-  );
-
-  const { displayedText: outputText } = useTypingEffect(
-    services[activeService].output,
-    20,
-    commandComplete
-  );
 
   return (
     <section id="services" className="pt-24 md:pt-32 pb-56 md:pb-64 bg-black-pure relative overflow-hidden" ref={ref}>
@@ -170,9 +141,9 @@ const Services = () => {
       </div>
 
       <div className="container-custom relative z-10">
-        {/* Section Header - Minimal */}
+        {/* Section Header */}
         <motion.div
-          className="text-center mb-16"
+          className="text-center mb-8"
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
           transition={{ duration: 0.8 }}
@@ -182,9 +153,15 @@ const Services = () => {
             <span className="text-primary-green text-sm font-mono">DEVELOPMENT</span>
             <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-primary-green" />
           </div>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white-pure">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white-pure mb-6">
             We <span className="text-primary-green">Code</span>
           </h2>
+          {/* Subtitle */}
+          <p className="text-white-muted text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
+            We build websites, applications, and blockchain projects completely from scratch.
+            From idea to deployment—analysis, implementation, testing, and delivery—we handle
+            the entire development lifecycle, including infrastructure setup.
+          </p>
         </motion.div>
 
         {/* Main Terminal Interface */}
@@ -200,7 +177,7 @@ const Services = () => {
               <button
                 key={service.id}
                 onClick={() => setActiveService(index)}
-                className={`px-6 py-3 font-mono text-sm rounded-t-lg border-t border-l border-r transition-all duration-300 ${
+                className={`px-8 py-4 font-mono text-base md:text-lg rounded-t-lg border-t border-l border-r transition-all duration-300 ${
                   activeService === index
                     ? 'bg-black-elevated border-primary-green/50 text-primary-green'
                     : 'bg-black-card/50 border-white-soft/10 text-white-dim hover:text-primary-green'
@@ -224,56 +201,60 @@ const Services = () => {
             </div>
 
             {/* Terminal Content */}
-            <div className="p-6 md:p-8 font-mono min-h-[300px]">
+            <div className="p-6 md:p-8">
               <motion.div
                 key={activeService}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
               >
-                {/* Command Line */}
-                <div className="flex items-start gap-2 mb-6">
-                  <span className="text-primary-green">❯</span>
-                  <span className="text-white-pure">{commandText}</span>
-                  {!commandComplete && (
-                    <span className="w-2 h-5 bg-primary-green animate-pulse" />
-                  )}
+                {/* Service Description */}
+                <p className="text-white-muted text-base md:text-lg leading-relaxed mb-6">
+                  {services[activeService].description}
+                </p>
+
+                {/* Features List */}
+                <div className="mb-6">
+                  <div className="text-white-soft text-sm md:text-base font-mono mb-3 uppercase tracking-wider">What we deliver:</div>
+                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                    {services[activeService].features.map((feature, i) => (
+                      <motion.li
+                        key={feature}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                        className="flex items-center gap-3 text-white-soft"
+                      >
+                        <span className="text-primary-green font-mono text-sm">{`>`}</span>
+                        <span className="text-base">{feature}</span>
+                      </motion.li>
+                    ))}
+                  </ul>
                 </div>
 
-                {/* Output */}
-                {commandComplete && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="space-y-4"
-                  >
-                    <div className="text-primary-green/80 text-sm">{outputText}</div>
+                {/* Tech Stack */}
+                <div className="pt-5 border-t border-primary-green/10">
+                  <div className="text-white-soft text-sm md:text-base font-mono mb-3 uppercase tracking-wider">Tech stack:</div>
+                  <div className="flex flex-wrap gap-2.5">
+                    {services[activeService].tech.map((tech, i) => (
+                      <motion.div
+                        key={tech}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: i * 0.05 }}
+                        className="px-4 py-2 bg-primary-green/10 border border-primary-green/30 rounded text-primary-green text-base font-mono"
+                      >
+                        {tech}
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
 
-                    {/* Tech Stack Visual */}
-                    <div className="pt-6 border-t border-primary-green/10">
-                      <div className="text-white-dim text-xs mb-4">STACK:</div>
-                      <div className="flex flex-wrap gap-3">
-                        {services[activeService].tech.map((tech, i) => (
-                          <motion.div
-                            key={tech}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: i * 0.1 }}
-                            className="px-4 py-2 bg-primary-green/10 border border-primary-green/30 rounded text-primary-green text-sm"
-                          >
-                            {tech}
-                          </motion.div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Status */}
-                    <div className="flex items-center gap-2 pt-4">
-                      <div className="w-2 h-2 bg-primary-green rounded-full animate-pulse" />
-                      <span className="text-primary-green text-xs">READY</span>
-                    </div>
-                  </motion.div>
-                )}
+                {/* Status */}
+                <div className="flex items-center gap-2 pt-5">
+                  <div className="w-2 h-2 bg-primary-green rounded-full animate-pulse" />
+                  <span className="text-primary-green text-sm font-mono">READY TO BUILD</span>
+                </div>
               </motion.div>
             </div>
           </div>
@@ -288,25 +269,6 @@ const Services = () => {
           className="absolute inset-0"
           style={{
             background: 'linear-gradient(180deg, transparent 0%, rgba(20, 20, 25, 0.5) 50%, rgba(20, 20, 25, 1) 100%)',
-          }}
-        />
-
-        {/* Central glowing energy line */}
-        <motion.div
-          className="absolute left-[10%] right-[10%] h-[2px]"
-          style={{
-            top: '64px',
-            background: 'linear-gradient(90deg, transparent 0%, rgba(0, 255, 65, 0.6) 20%, rgba(0, 255, 65, 1) 50%, rgba(0, 255, 65, 0.6) 80%, transparent 100%)',
-            boxShadow: '0 0 20px rgba(0, 255, 65, 0.6), 0 0 40px rgba(0, 255, 65, 0.3)',
-          }}
-          animate={{
-            scaleX: [0.85, 1, 0.85],
-            opacity: [0.7, 1, 0.7],
-          }}
-          transition={{
-            duration: 2.5,
-            repeat: Infinity,
-            ease: 'easeInOut',
           }}
         />
 
@@ -334,6 +296,25 @@ const Services = () => {
             }}
           />
         ))}
+
+        {/* Central glowing energy line - positioned in middle of particles */}
+        <motion.div
+          className="absolute left-[10%] right-[10%] h-[2px]"
+          style={{
+            top: '102px',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(0, 255, 65, 0.6) 20%, rgba(0, 255, 65, 1) 50%, rgba(0, 255, 65, 0.6) 80%, transparent 100%)',
+            boxShadow: '0 0 20px rgba(0, 255, 65, 0.6), 0 0 40px rgba(0, 255, 65, 0.3)',
+          }}
+          animate={{
+            scaleX: [0.85, 1, 0.85],
+            opacity: [0.7, 1, 0.7],
+          }}
+          transition={{
+            duration: 2.5,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
       </div>
     </section>
   );
