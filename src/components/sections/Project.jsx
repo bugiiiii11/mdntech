@@ -86,14 +86,14 @@ const Project = () => {
 
                 {/* Project Description */}
                 <p className="text-gray-400 mb-8 leading-relaxed text-lg">
-                  A blockchain-based strategy game featuring unique NFT characters,
-                  on-chain battles, and a player-driven economy. Built with smart contracts
-                  on multiple chains with Chainlink VRF for provably fair randomization.
+                  A blockchain-based strategy game featuring unique NFT characters, 
+                  upgradable weapons, digital lands and AI-driven economy. Built with smart contracts
+                  using Chainlink VRF for provably fair randomization.
                 </p>
 
                 {/* Tech Used */}
                 <div className="flex flex-wrap gap-2 mb-8">
-                  {['Solidity', 'React', 'Node.js', 'Chainlink VRF', 'NFT'].map((tech) => (
+                  {['Blockchain', 'Gaming', 'AI', 'NFT'].map((tech) => (
                     <span
                       key={tech}
                       className="px-4 py-2 bg-dark-elevated text-gray-400 text-sm rounded-lg border border-gray-500/20 transition-all duration-500 hover:border-primary/50 hover:text-primary hover:glow-blue-sm"
@@ -124,30 +124,41 @@ const Project = () => {
 
             {/* Right: Character Art - Slides from right */}
             <div
-              className={`relative bg-gradient-to-br from-dark to-dark p-8 lg:p-12 flex items-center justify-center min-h-[400px] lg:min-h-[500px] transition-all duration-1500 ease-out delay-800 ${
+              className={`relative bg-gradient-to-br from-dark to-dark p-8 lg:p-12 flex items-center justify-center min-h-[400px] lg:min-h-[500px] transition-all duration-1500 ease-out delay-500 ${
                 isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'
               }`}
             >
-              {/* Large blue glow orb behind character */}
-              <div className="absolute top-1/2 left-1/2 w-96 h-96 glow-orb-blue-lg blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+              {/* Subtle pulsing glow orb behind character */}
+              <div
+                className="absolute top-1/2 left-1/2 w-80 h-80 glow-orb-blue blur-3xl -translate-x-1/2 -translate-y-1/2"
+                style={{
+                  animation: 'subtleGlow 4s ease-in-out infinite',
+                }}
+              ></div>
 
-              {/* Decorative ring glow */}
-              <div className="absolute top-1/2 left-1/2 w-80 h-80 border border-primary/20 rounded-full -translate-x-1/2 -translate-y-1/2 glow-blue-md"></div>
-
-              {/* Character Image - Scroll-based zoom */}
-              <div className="relative z-10">
+              {/* Character Image - Simple fade in with subtle glow and parallax */}
+              <div
+                className="relative z-10"
+                style={{
+                  transform: `translateY(${scrollProgress * 120}px) scale(${1 + scrollProgress * 0.3})`,
+                  transition: 'transform 0.1s ease-out',
+                }}
+              >
                 <img
                   src="/images/swarm/character-warrior2.png"
                   alt="Swarm Resistance Character"
-                  className="max-h-[350px] lg:max-h-[400px] w-auto object-contain drop-shadow-2xl relative z-10 transition-transform duration-100 ease-out"
+                  className={`max-h-[350px] lg:max-h-[400px] w-auto object-contain relative z-10 transition-all duration-1500 ease-out delay-1000 ${
+                    isVisible ? 'opacity-100' : 'opacity-0'
+                  }`}
                   style={{
-                    transform: `scale(${1 + scrollProgress * 0.15})`,
+                    filter: isVisible ? 'drop-shadow(0 0 20px rgba(59, 130, 246, 0.3))' : 'none',
                   }}
                   onError={(e) => {
                     e.target.style.display = 'none';
                     e.target.nextSibling.style.display = 'flex';
                   }}
                 />
+
                 {/* Fallback placeholder */}
                 <div className="hidden flex-col items-center justify-center text-center p-8">
                   <div className="w-64 h-64 rounded-full bg-primary/5 border-2 border-primary/20 flex items-center justify-center glow-blue-md">
@@ -158,14 +169,22 @@ const Project = () => {
                   <p className="text-gray-500 text-sm mt-4">Character art coming soon</p>
                 </div>
               </div>
-
-              {/* Additional ambient glows */}
-              <div className="absolute top-8 right-8 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
-              <div className="absolute bottom-8 left-8 w-40 h-40 bg-primary/10 rounded-full blur-3xl"></div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* CSS Animations */}
+      <style>{`
+        @keyframes subtleGlow {
+          0%, 100% {
+            opacity: 0.3;
+          }
+          50% {
+            opacity: 0.5;
+          }
+        }
+      `}</style>
     </section>
   );
 };

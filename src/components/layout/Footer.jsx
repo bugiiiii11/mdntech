@@ -26,7 +26,8 @@ const Footer = () => {
             </h3>
             <p className="text-gray-400 text-sm leading-relaxed">
               Your Vision, Engineered.<br />
-              Dubai-based development studio.
+              We build your project <br />
+              from concept to launch.
             </p>
           </div>
 
@@ -61,7 +62,7 @@ const Footer = () => {
                 chaosgenesisnft@gmail.com
               </a>
               <p className="text-gray-500 text-xs mt-3">
-                Dubai, UAE
+                Umm Al Quwain, UAE
               </p>
             </div>
           </div>

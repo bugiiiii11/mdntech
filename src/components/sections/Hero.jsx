@@ -24,24 +24,17 @@ const Hero = () => {
     }
   };
 
-  // Generate light rays configuration (excluding horizontal)
-  const rays = [
-    // Top rays
-    { angle: -30, delay: 0, duration: 4, color: 'blue' },
-    { angle: -15, delay: 0.5, duration: 5, color: 'white' },
-    { angle: 15, delay: 1, duration: 4.5, color: 'blue' },
-    { angle: 30, delay: 0.3, duration: 5.5, color: 'cyan' },
-    // Bottom rays
-    { angle: 150, delay: 0.8, duration: 4.2, color: 'blue' },
-    { angle: 165, delay: 0.2, duration: 5.2, color: 'white' },
-    { angle: -150, delay: 1.2, duration: 4.8, color: 'cyan' },
-    { angle: -165, delay: 0.6, duration: 5, color: 'blue' },
-    // Side rays (angled, not horizontal)
-    { angle: 45, delay: 0.4, duration: 4.6, color: 'white' },
-    { angle: -45, delay: 0.9, duration: 5.1, color: 'blue' },
-    { angle: 135, delay: 0.7, duration: 4.4, color: 'cyan' },
-    { angle: -135, delay: 1.1, duration: 4.9, color: 'blue' },
-  ];
+  // Generate more light rays with random properties
+  const rays = useMemo(() =>
+    [...Array(24)].map((_, i) => ({
+      id: i,
+      angle: (360 / 24) * i + (Math.random() * 10 - 5), // Evenly distributed around circle
+      delay: Math.random() * 8,
+      duration: 3 + Math.random() * 3,
+      color: ['blue', 'white', 'cyan'][Math.floor(Math.random() * 3)],
+      thickness: Math.random() > 0.5 ? 2 : 1,
+    })), []
+  );
 
   // Generate star field - memoized to prevent re-renders
   const stars = useMemo(() =>
