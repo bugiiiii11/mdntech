@@ -1,320 +1,115 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
-
-// Generate stable matrix characters once
-const generateMatrixChars = (length) => {
-  const chars = ['0', '1', 'ア', 'イ', 'ウ', 'エ', 'オ', 'カ', 'キ', '0', '1', '0', '1'];
-  return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]);
-};
-
-// Pre-generate columns data to prevent re-renders
-const matrixColumns = Array.from({ length: 20 }, (_, i) => ({
-  id: i,
-  delay: i * 0.2,
-  duration: 6 + (i % 5),
-  left: i * 5 + (i % 3),
-  chars: generateMatrixChars(25),
-}));
-
-// Matrix rain column component - memoized
-const MatrixColumn = ({ delay, duration, left, chars }) => {
-  return (
-    <motion.div
-      className="absolute top-0 text-primary-green font-mono text-sm leading-tight select-none pointer-events-none"
-      style={{ left: `${left}%` }}
-      initial={{ y: '-100%' }}
-      animate={{ y: '100%' }}
-      transition={{
-        duration,
-        delay,
-        repeat: Infinity,
-        ease: 'linear',
-      }}
-    >
-      {chars.map((char, i) => (
-        <div
-          key={i}
-          style={{ opacity: 0.1 + (i / 25) * 0.4 }}
-        >
-          {char}
-        </div>
-      ))}
-    </motion.div>
-  );
-};
+import { useEffect, useRef, useState } from 'react';
 
 const Services = () => {
-  const [activeService, setActiveService] = useState(0);
-  const [ref, inView] = useInView({
-    triggerOnce: true,
-    threshold: 0.1,
-  });
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   const services = [
     {
-      id: 0,
-      name: 'Web & App',
-      description: 'Full-stack development for modern web applications and mobile apps. We architect scalable solutions using cutting-edge frameworks, implement responsive designs, and deploy to cloud infrastructure.',
-      features: [
-        'Custom web applications & SPAs',
-        'Mobile apps (React Native, Flutter)',
-        'REST APIs & GraphQL backends',
-        'Database design (PostgreSQL, MongoDB)',
-        'Cloud infrastructure (AWS, Vercel)',
-        'CI/CD pipelines & DevOps',
-      ],
-      tech: ['React', 'Next.js', 'Node.js', 'PostgreSQL', 'AWS'],
+      icon: (
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      ),
+      title: 'Web Applications',
+      description: 'Custom web solutions built for scale. From complex dashboards to full-stack platforms, we deliver fast, secure, and maintainable applications.',
+      features: ['React & Next.js', 'Node.js backends', 'Database design', 'Cloud deployment'],
     },
     {
-      id: 1,
-      name: 'Blockchain',
-      description: 'End-to-end blockchain development from smart contracts to dApp interfaces. We build secure, audited solutions on major networks with seamless Web3 integration. Our team has hands-on experience launching production-ready projects across multiple chains.',
-      features: [
-        'Custom smart contracts',
-        'Multi-chain deployment',
-        'Web3 login & wallet integration',
-        'Tokenomics',
-        'On-chain randomization',
-        'NFT platforms & marketplaces',
-      ],
-      tech: ['Solidity', 'Rust', 'Chainlink VRF', 'Web3.js', 'EVM Chains & Solana'],
+      icon: (
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+      ),
+      title: 'Mobile Applications',
+      description: 'Native and cross-platform apps that users love. Clean architecture, smooth performance, and seamless deployment to App Store and Google Play.',
+      features: ['React Native', 'Cross-platform', 'Native performance', 'Store deployment'],
+    },
+    {
+      icon: (
+        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+        </svg>
+      ),
+      title: 'Blockchain Solutions',
+      description: 'Smart contracts, DeFi integrations, and Web3 infrastructure. We navigate the complexity so you can focus on your product.',
+      features: ['Smart contracts', 'DeFi & NFTs', 'Web3 integration', 'Multi-chain support'],
     },
   ];
 
-
   return (
-    <section id="services" className="pt-24 md:pt-32 pb-56 md:pb-64 bg-black-pure relative overflow-hidden" ref={ref}>
-      {/* === TOP TRANSITION: Scan line at section boundary === */}
-      {/* Scan line effect - positioned at the very top */}
-      <motion.div
-        className="absolute top-0 left-0 right-0 h-[2px] z-30 pointer-events-none"
-        style={{
-          background: 'linear-gradient(90deg, transparent 0%, rgba(0, 255, 65, 0.8) 50%, transparent 100%)',
-          boxShadow: '0 0 20px rgba(0, 255, 65, 0.5), 0 0 40px rgba(0, 255, 65, 0.3)',
-        }}
-        animate={{
-          opacity: [0.5, 1, 0.5],
-        }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-      />
-
-      {/* Gradient fade below scan line */}
-      <div className="absolute top-0 left-0 right-0 h-32 pointer-events-none z-20">
-        <div
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)',
-          }}
-        />
-      </div>
-
-      {/* Matrix rain background - more visible */}
-      <div className="absolute inset-0 overflow-hidden opacity-60">
-        {matrixColumns.map((col) => (
-          <MatrixColumn
-            key={col.id}
-            delay={col.delay}
-            duration={col.duration}
-            left={col.left}
-            chars={col.chars}
-          />
-        ))}
-      </div>
-
-      {/* Grid overlay */}
-      <div className="absolute inset-0 opacity-[0.03]">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(0, 255, 65, 1) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(0, 255, 65, 1) 1px, transparent 1px)
-            `,
-            backgroundSize: '80px 80px',
-          }}
-        />
-      </div>
-
-      <div className="container-custom relative z-10">
+    <section id="services" className="section-padding" ref={sectionRef}>
+      <div className="container-custom">
         {/* Section Header */}
-        <motion.div
-          className="text-center mb-8"
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.8 }}
-        >
-          <div className="inline-flex items-center gap-3 mb-4">
-            <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-primary-green" />
-            <span className="text-primary-green text-sm font-mono">DEVELOPMENT</span>
-            <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-primary-green" />
-          </div>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white-pure mb-6">
-            We <span className="text-primary-green">Code</span>
-          </h2>
-          {/* Subtitle */}
-          <p className="text-white-muted text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
-            We build websites, applications, and blockchain projects completely from scratch.
-            From idea to deployment—analysis, implementation, testing, and delivery—we handle
-            the entire development lifecycle, including infrastructure setup.
-          </p>
-        </motion.div>
-
-        {/* Main Terminal Interface */}
-        <motion.div
-          className="max-w-4xl mx-auto"
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          {/* Service Tabs */}
-          <div className="flex gap-2 mb-4">
-            {services.map((service, index) => (
-              <button
-                key={service.id}
-                onClick={() => setActiveService(index)}
-                className={`px-8 py-4 font-mono text-base md:text-lg rounded-t-lg border-t border-l border-r transition-all duration-300 ${
-                  activeService === index
-                    ? 'bg-black-elevated border-primary-green/50 text-primary-green'
-                    : 'bg-black-card/50 border-white-soft/10 text-white-dim hover:text-primary-green'
-                }`}
-              >
-                {service.name}
-              </button>
-            ))}
-          </div>
-
-          {/* Terminal Window */}
-          <div className="bg-black-elevated rounded-lg border border-primary-green/20 overflow-hidden shadow-green-glow-sm">
-            {/* Terminal Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-black-card border-b border-primary-green/20">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-primary-green/60" />
-                <div className="w-3 h-3 rounded-full bg-primary-green/40" />
-                <div className="w-3 h-3 rounded-full bg-primary-green/20" />
-              </div>
-              <span className="text-primary-green/60 text-xs font-mono">mdn-cli v2.0</span>
-            </div>
-
-            {/* Terminal Content */}
-            <div className="p-6 md:p-8">
-              <motion.div
-                key={activeService}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-              >
-                {/* Service Description */}
-                <p className="text-white-muted text-base md:text-lg leading-relaxed mb-6">
-                  {services[activeService].description}
-                </p>
-
-                {/* Features List */}
-                <div className="mb-6">
-                  <div className="text-white-soft text-sm md:text-base font-mono mb-3 uppercase tracking-wider">What we deliver:</div>
-                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                    {services[activeService].features.map((feature, i) => (
-                      <motion.li
-                        key={feature}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.05 }}
-                        className="flex items-center gap-3 text-white-soft"
-                      >
-                        <span className="text-primary-green font-mono text-sm">{`>`}</span>
-                        <span className="text-base">{feature}</span>
-                      </motion.li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Tech Stack */}
-                <div className="pt-5 border-t border-primary-green/10">
-                  <div className="text-white-soft text-sm md:text-base font-mono mb-3 uppercase tracking-wider">Tech stack:</div>
-                  <div className="flex flex-wrap gap-2.5">
-                    {services[activeService].tech.map((tech, i) => (
-                      <motion.div
-                        key={tech}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: i * 0.05 }}
-                        className="px-4 py-2 bg-primary-green/10 border border-primary-green/30 rounded text-primary-green text-base font-mono"
-                      >
-                        {tech}
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Status */}
-                <div className="flex items-center gap-2 pt-5">
-                  <div className="w-2 h-2 bg-primary-green rounded-full animate-pulse" />
-                  <span className="text-primary-green text-sm font-mono">READY TO BUILD</span>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-
-        </motion.div>
-      </div>
-
-      {/* === BOTTOM TRANSITION: Glowing energy line to Growth === */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none overflow-hidden">
-        {/* Gradient fade out */}
         <div
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(180deg, transparent 0%, rgba(20, 20, 25, 0.5) 50%, rgba(20, 20, 25, 1) 100%)',
-          }}
-        />
+          className={`text-center mb-16 transition-all duration-1000 ease-out ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
+        >
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            What We Build
+          </h2>
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            End-to-end development services from concept to deployment
+          </p>
+        </div>
 
-        {/* Data flow particles around center line */}
-        {Array.from({ length: 15 }, (_, i) => (
-          <motion.div
-            key={`data-${i}`}
-            className="absolute w-1.5 h-1.5 rounded-full"
-            style={{
-              left: `${8 + (i * 6)}%`,
-              top: '62px',
-              background: 'radial-gradient(circle, rgba(0, 255, 65, 0.9) 0%, rgba(0, 255, 65, 0) 70%)',
-              boxShadow: '0 0 10px rgba(0, 255, 65, 0.6)',
-            }}
-            animate={{
-              y: [-12, 12, -12],
-              opacity: [0.3, 0.9, 0.3],
-              scale: [0.8, 1.3, 0.8],
-            }}
-            transition={{
-              duration: 2 + (i % 3) * 0.5,
-              repeat: Infinity,
-              delay: i * 0.12,
-              ease: 'easeInOut',
-            }}
-          />
-        ))}
+        {/* Services Grid - Staggered slide-in animation */}
+        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+          {services.map((service, index) => (
+            <div
+              key={service.title}
+              className={`card transition-all duration-1000 ease-out ${
+                isVisible ? 'opacity-100 translate-x-0 translate-y-0' : index % 2 === 0 ? 'opacity-0 -translate-x-16 translate-y-8' : 'opacity-0 translate-x-16 translate-y-8'
+              }`}
+              style={{ transitionDelay: `${index * 200 + 300}ms` }}
+            >
+              {/* Icon */}
+              <div className="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-5">
+                {service.icon}
+              </div>
 
-        {/* Central glowing energy line - positioned in middle of particles */}
-        <motion.div
-          className="absolute left-[10%] right-[10%] h-[2px]"
-          style={{
-            top: '102px',
-            background: 'linear-gradient(90deg, transparent 0%, rgba(0, 255, 65, 0.6) 20%, rgba(0, 255, 65, 1) 50%, rgba(0, 255, 65, 0.6) 80%, transparent 100%)',
-            boxShadow: '0 0 20px rgba(0, 255, 65, 0.6), 0 0 40px rgba(0, 255, 65, 0.3)',
-          }}
-          animate={{
-            scaleX: [0.85, 1, 0.85],
-            opacity: [0.7, 1, 0.7],
-          }}
-          transition={{
-            duration: 2.5,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        />
+              {/* Title */}
+              <h3 className="text-xl font-semibold text-white mb-3">
+                {service.title}
+              </h3>
+
+              {/* Description */}
+              <p className="text-gray-400 mb-5 leading-relaxed">
+                {service.description}
+              </p>
+
+              {/* Features */}
+              <ul className="space-y-2">
+                {service.features.map((feature) => (
+                  <li key={feature} className="flex items-center gap-2 text-gray-400 text-sm">
+                    <svg className="w-4 h-4 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

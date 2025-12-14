@@ -1,253 +1,195 @@
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
-
-// Animated counter component
-const StatCounter = ({ number, suffix, inView }) => {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    if (inView) {
-      let start = 0;
-      const end = number;
-      const duration = 2000;
-      const increment = end / (duration / 16);
-
-      const timer = setInterval(() => {
-        start += increment;
-        if (start >= end) {
-          setCount(end);
-          clearInterval(timer);
-        } else {
-          setCount(Math.floor(start));
-        }
-      }, 16);
-
-      return () => clearInterval(timer);
-    }
-  }, [inView, number]);
-
-  return (
-    <span className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary-green font-mono">
-      {count}{suffix}
-    </span>
-  );
-};
+import { useEffect, useRef, useState } from 'react';
 
 const About = () => {
-  const [ref, inView] = useInView({
-    triggerOnce: true,
-    threshold: 0.1,
-  });
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef(null);
 
-  const stats = [
-    { number: 20, suffix: '+', label: 'Years', sublabel: 'App Development' },
-    { number: 5, suffix: '+', label: 'Years', sublabel: 'Blockchain' },
-    { number: 20, suffix: '+', label: 'Accounts', sublabel: 'Managed' },
-    { number: 3, suffix: '', label: 'Active', sublabel: 'Projects' },
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  const team = [
+    {
+      name: 'Founder',
+      role: 'Project Management & Strategy',
+      expertise: ['Project Management', 'Blockchain Solutions', 'AI Integration'],
+      avatar: '/images/team/founder.png',
+    },
+    {
+      name: 'CTO',
+      role: 'Technical Leadership',
+      expertise: ['20+ Years Development', 'Web & Mobile Apps', 'Enterprise Solutions'],
+      avatar: '/images/team/cto.png',
+    },
   ];
 
   return (
-    <section id="about" className="pt-12 md:pt-16 pb-32 md:pb-40 bg-[#0a0a0c] relative overflow-hidden" ref={ref}>
-      {/* === TOP TRANSITION from Growth === */}
-      <div className="absolute top-0 left-0 right-0 h-32 pointer-events-none z-20">
-        <div
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(180deg, rgba(10, 10, 12, 1) 0%, rgba(10, 10, 12, 0.6) 50%, transparent 100%)',
-          }}
-        />
-        {/* Incoming particles */}
-        {Array.from({ length: 15 }, (_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-primary-green rounded-full"
-            style={{ left: `${8 + (i * 6)}%`, top: '0px' }}
-            animate={{ y: [0, 40, 80], opacity: [0.6, 0.3, 0], scale: [1, 0.7, 0.3] }}
-            transition={{ duration: 2.5 + (i % 3), repeat: Infinity, delay: i * 0.12, ease: 'easeOut' }}
-          />
-        ))}
-      </div>
-
-      {/* Animated grid background */}
-      <div className="absolute inset-0 opacity-10">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(0, 255, 65, 0.1) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(0, 255, 65, 0.1) 1px, transparent 1px)
-            `,
-            backgroundSize: '50px 50px',
-          }}
-        />
-      </div>
-
-      {/* Subtle glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1/2 h-1/2 bg-primary-green/5 blur-[150px] rounded-full" />
-
-      <div className="container-custom relative z-10">
+    <section id="about" className="section-padding bg-dark" ref={sectionRef}>
+      <div className="container-custom">
         {/* Section Header */}
-        <motion.div
-          className="text-center mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
+        <div
+          className={`text-center mb-16 transition-all duration-1200 ease-out ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
         >
-          <div className="inline-flex items-center gap-3 mb-4">
-            <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-primary-green" />
-            <span className="text-primary-green text-sm font-mono">ABOUT</span>
-            <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-primary-green" />
-          </div>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white-pure mb-4">
-            Who We <span className="text-primary-green">Are</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Who We Are
           </h2>
-          <p className="text-white-muted text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
-            Dubai-based tech studio founded by visionary developers with decades of combined experience.
-            We transform startup ideas into market-ready digital products.
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            A Dubai-based development studio with decades of combined experience
+            building digital products that matter.
           </p>
-        </motion.div>
+        </div>
 
-        {/* Stats Grid - Cyberpunk Style */}
-        <motion.div
-          className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-16"
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          {stats.map((stat, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={inView ? { opacity: 1, scale: 1 } : {}}
-              transition={{ delay: 0.3 + index * 0.1 }}
-              className="group relative bg-black-pure/60 backdrop-blur-sm border border-primary-green/20 p-6 md:p-8 hover:border-primary-green/50 transition-all duration-500"
-              style={{
-                clipPath: 'polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))',
-              }}
+        {/* Team Grid - Scale + Fade animation */}
+        <div className="grid md:grid-cols-2 gap-8 lg:gap-12 max-w-4xl mx-auto mb-20">
+          {team.map((member, index) => (
+            <div
+              key={member.name}
+              className={`group relative transition-all duration-1500 ease-out ${
+                isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
+              }`}
+              style={{ transitionDelay: `${index * 400 + 600}ms` }}
             >
-              {/* Corner accents */}
-              <div className="absolute top-0 left-0 w-8 h-[1px] bg-gradient-to-r from-primary-green to-transparent" />
-              <div className="absolute top-0 left-0 w-[1px] h-8 bg-gradient-to-b from-primary-green to-transparent" />
-              <div className="absolute bottom-0 right-0 w-8 h-[1px] bg-gradient-to-l from-primary-green to-transparent" />
-              <div className="absolute bottom-0 right-0 w-[1px] h-8 bg-gradient-to-t from-primary-green to-transparent" />
+              {/* Background glow orb - appears on hover */}
+              <div className="absolute top-1/2 left-1/2 w-64 h-64 glow-orb-blue blur-3xl -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-40 transition-opacity duration-700"></div>
 
-              {/* Stat number */}
-              <div className="text-center mb-2">
-                <StatCounter number={stat.number} suffix={stat.suffix} inView={inView} />
-              </div>
+              {/* Card content */}
+              <div className="relative bg-dark-elevated border border-gray-500/10 rounded-2xl p-8 text-center transition-all duration-700 group-hover:border-primary/30 group-hover:-translate-y-2">
+                {/* Avatar with glowing ring */}
+                <div className="relative w-32 h-32 mx-auto mb-6">
+                  {/* Outer glow ring - animated on hover */}
+                  <div className="absolute inset-0 rounded-full border-2 border-primary/0 group-hover:border-primary/50 transition-all duration-700 group-hover:scale-110 group-hover:glow-blue-md"></div>
 
-              {/* Label */}
-              <div className="text-center">
-                <div className="text-white-soft text-sm font-medium uppercase tracking-wider">
-                  {stat.label}
+                  {/* Avatar container */}
+                  <div className="relative w-full h-full rounded-full overflow-hidden bg-dark border-2 border-gray-500/20 group-hover:border-primary/40 transition-all duration-700">
+                    <img
+                      src={member.avatar}
+                      alt={member.name}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.parentElement.innerHTML = `
+                          <div class="w-full h-full flex items-center justify-center bg-primary/10">
+                            <svg class="w-12 h-12 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          </div>
+                        `;
+                      }}
+                    />
+                  </div>
+
+                  {/* Small decorative glow dots */}
+                  <div className="absolute top-0 right-0 w-3 h-3 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 glow-blue-sm"></div>
                 </div>
-                <div className="text-white-dim text-xs uppercase tracking-wide">
-                  {stat.sublabel}
+
+                {/* Name & Role */}
+                <h3 className="text-2xl font-bold text-white mb-2 transition-colors duration-500 group-hover:text-primary">
+                  {member.name}
+                </h3>
+                <p className="text-primary text-sm font-medium mb-6">
+                  {member.role}
+                </p>
+
+                {/* Expertise Tags */}
+                <div className="flex flex-wrap justify-center gap-2">
+                  {member.expertise.map((skill) => (
+                    <span
+                      key={skill}
+                      className="px-3 py-1.5 bg-dark text-gray-400 text-xs rounded-full border border-gray-500/20 transition-all duration-500 group-hover:border-primary/40 group-hover:text-gray-300"
+                    >
+                      {skill}
+                    </span>
+                  ))}
                 </div>
               </div>
-
-              {/* Pulse indicator */}
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1">
-                <div className="w-1 h-1 rounded-full bg-primary-green animate-pulse" />
-              </div>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
 
-        {/* About Content - Two Columns */}
-        <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
-          {/* Left Column - Our Story */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="group relative bg-black-pure/60 backdrop-blur-sm border border-primary-green/20 p-8 hover:border-primary-green/50 transition-all duration-500"
-            style={{
-              clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px))',
-            }}
+        {/* Why Work With Us - Cascade animation */}
+        <div className="max-w-4xl mx-auto">
+          <h3
+            className={`text-2xl md:text-3xl font-bold text-white mb-12 text-center transition-all duration-1200 ease-out delay-1400 ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            }`}
           >
-            {/* Corner accents */}
-            <div className="absolute top-0 left-0 w-16 h-[1px] bg-gradient-to-r from-primary-green to-transparent" />
-            <div className="absolute top-0 left-0 w-[1px] h-16 bg-gradient-to-b from-primary-green to-transparent" />
-            <div className="absolute bottom-0 right-0 w-16 h-[1px] bg-gradient-to-l from-primary-green to-transparent" />
-            <div className="absolute bottom-0 right-0 w-[1px] h-16 bg-gradient-to-t from-primary-green to-transparent" />
+            Why Work With Us
+          </h3>
 
-            <div className="absolute top-4 right-6 font-mono text-primary-green/30 text-sm">01</div>
+          <div className="grid sm:grid-cols-3 gap-8">
+            {[
+                {
+                  title: 'Full Lifecycle',
+                  desc: 'From concept to deployment and beyond',
+                  icon: (
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  )
+                },
+                {
+                  title: 'Modern Stack',
+                  desc: 'Latest technologies, best practices',
+                  icon: (
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    </svg>
+                  )
+                },
+                {
+                  title: 'Partner Approach',
+                  desc: 'We invest in your success',
+                  icon: (
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  )
+                },
+              ].map((item, index) => (
+                <div
+                  key={item.title}
+                  className={`group relative text-center p-6 rounded-xl bg-dark-elevated border border-gray-500/10 transition-all duration-1200 ease-out ${
+                    isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+                  }`}
+                  style={{ transitionDelay: `${index * 300 + 1600}ms` }}
+                >
+                  {/* Background glow on hover */}
+                  <div className="absolute inset-0 glow-orb-blue blur-2xl opacity-0 group-hover:opacity-30 transition-opacity duration-700 rounded-xl"></div>
 
-            <h3 className="text-2xl font-bold text-white-pure mb-1 tracking-wide">Our Story</h3>
-            <div className="w-12 h-[2px] bg-primary-green mb-4" />
+                  {/* Icon */}
+                  <div className="relative inline-flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-primary/10 text-primary border border-primary/20 group-hover:glow-blue-sm transition-all duration-500">
+                    {item.icon}
+                  </div>
 
-            <p className="text-white-muted leading-relaxed mb-4">
-              Founded by technologists with a 25-year friendship who saw the future of digital innovation.
-              We've transformed from startup founders into technical partners that ambitious projects rely on.
-            </p>
-            <p className="text-white-muted leading-relaxed">
-              We understand the startup journey because we've lived it—every challenge, pivot, and breakthrough.
-              This shapes how we work: not as vendors, but as invested partners in your success.
-            </p>
-          </motion.div>
-
-          {/* Right Column - Our Expertise */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={inView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="group relative bg-black-pure/60 backdrop-blur-sm border border-primary-green/20 p-8 hover:border-primary-green/50 transition-all duration-500"
-            style={{
-              clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)',
-            }}
-          >
-            {/* Corner accents */}
-            <div className="absolute top-0 right-0 w-16 h-[1px] bg-gradient-to-l from-primary-green to-transparent" />
-            <div className="absolute top-0 right-0 w-[1px] h-16 bg-gradient-to-b from-primary-green to-transparent" />
-            <div className="absolute bottom-0 left-0 w-16 h-[1px] bg-gradient-to-r from-primary-green to-transparent" />
-            <div className="absolute bottom-0 left-0 w-[1px] h-16 bg-gradient-to-t from-primary-green to-transparent" />
-
-            <div className="absolute top-4 right-6 font-mono text-primary-green/30 text-sm">02</div>
-
-            <h3 className="text-2xl font-bold text-white-pure mb-1 tracking-wide">Our Expertise</h3>
-            <div className="w-12 h-[2px] bg-primary-green mb-4" />
-
-            <p className="text-white-muted leading-relaxed mb-4">
-              20 years of application development. 5 years of blockchain specialization.
-              Cutting-edge AI implementation. But technology is just the foundation.
-            </p>
-            <p className="text-white-muted leading-relaxed">
-              What sets us apart is seeing beyond code—understanding your vision, anticipating market needs,
-              and architecting solutions that evolve with tomorrow's opportunities.
-            </p>
-          </motion.div>
+                  {/* Content */}
+                  <div className="relative">
+                    <h4 className="text-lg font-semibold text-white mb-2 group-hover:text-primary transition-colors duration-500">
+                      {item.title}
+                    </h4>
+                    <p className="text-gray-400 text-sm leading-relaxed">
+                      {item.desc}
+                    </p>
+                  </div>
+                </div>
+              ))}
+          </div>
         </div>
       </div>
-
-      {/* === BOTTOM TRANSITION to Contact === */}
-      {/* Gradient fade out */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none z-20">
-        <div
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(180deg, transparent 0%, rgba(5, 5, 8, 0.5) 50%, rgba(5, 5, 8, 1) 100%)',
-          }}
-        />
-      </div>
-
-      {/* Scan line effect - positioned at the very bottom */}
-      <motion.div
-        className="absolute bottom-0 left-0 right-0 h-[2px] z-30 pointer-events-none"
-        style={{
-          background: 'linear-gradient(90deg, transparent 0%, rgba(0, 255, 65, 0.8) 50%, transparent 100%)',
-          boxShadow: '0 0 20px rgba(0, 255, 65, 0.5), 0 0 40px rgba(0, 255, 65, 0.3)',
-        }}
-        animate={{
-          opacity: [0.5, 1, 0.5],
-        }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-      />
     </section>
   );
 };

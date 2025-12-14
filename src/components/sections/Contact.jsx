@@ -1,262 +1,53 @@
-import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
-
-// Custom Budget Dropdown Component
-const BudgetDropdown = ({ value, onChange, error }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
-
-  const budgetOptions = [
-    { value: 'under-5k', label: 'Under $5,000' },
-    { value: '5k-15k', label: '$5,000 - $15,000' },
-    { value: '15k-50k', label: '$15,000 - $50,000' },
-    { value: '50k-100k', label: '$50,000 - $100,000' },
-    { value: '100k-plus', label: '$100,000+' },
-    { value: 'not-sure', label: "Not sure yet / Let's discuss" },
-  ];
-
-  const selectedLabel = budgetOptions.find(opt => opt.value === value)?.label || 'Select budget range';
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  return (
-    <div ref={dropdownRef}>
-      <label className="block text-white-soft text-sm font-medium mb-2">
-        Project Budget
-      </label>
-      <div className="relative">
-        <button
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          className={`w-full bg-black-card border ${error ? 'border-red-400' : 'border-primary-green/20'} ${isOpen ? 'border-primary-green/60 ring-1 ring-primary-green/30' : ''} rounded-md text-left px-4 py-3 text-sm transition-all duration-300 focus:outline-none focus:border-primary-green/60 focus:ring-1 focus:ring-primary-green/30 cursor-pointer flex items-center justify-between`}
-        >
-          <span className={value ? 'text-white-pure' : 'text-white-dim'}>
-            {selectedLabel}
-          </span>
-          <svg
-            className={`w-4 h-4 text-primary-green transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-
-        {/* Dropdown Menu */}
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.15 }}
-              className="absolute z-50 w-full mt-1 bg-black-card border border-primary-green/30 rounded-md shadow-lg overflow-hidden"
-            >
-              {budgetOptions.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => {
-                    onChange(option.value);
-                    setIsOpen(false);
-                  }}
-                  className={`w-full px-4 py-3 text-left text-sm transition-all duration-150 ${
-                    value === option.value
-                      ? 'bg-primary-green/20 text-primary-green font-medium border-l-2 border-primary-green'
-                      : 'text-white-pure hover:bg-primary-green/10 hover:text-primary-green'
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-      {error && (
-        <p className="text-red-400 text-xs mt-1">{error}</p>
-      )}
-    </div>
-  );
-};
+import { useEffect, useRef, useState } from 'react';
 
 const Contact = () => {
-  const [ref, inView] = useInView({
-    triggerOnce: true,
-    threshold: 0.2,
-  });
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  return (
-    <>
-      <section id="contact" className="pt-20 md:pt-28 pb-24 md:pb-32 relative overflow-hidden" ref={ref}>
-        {/* === TOP TRANSITION from About === */}
-        <div className="absolute top-0 left-0 right-0 h-32 pointer-events-none z-20">
-          <div
-            className="absolute inset-0"
-            style={{
-              background: 'linear-gradient(180deg, rgba(10, 10, 12, 1) 0%, rgba(10, 10, 12, 0.6) 50%, transparent 100%)',
-            }}
-          />
-          {/* Incoming particles */}
-          {Array.from({ length: 15 }, (_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 bg-primary-green rounded-full"
-              style={{ left: `${8 + (i * 6)}%`, top: '0px' }}
-              animate={{ y: [0, 40, 80], opacity: [0.6, 0.3, 0], scale: [1, 0.7, 0.3] }}
-              transition={{ duration: 2.5 + (i % 3), repeat: Infinity, delay: i * 0.12, ease: 'easeOut' }}
-            />
-          ))}
-        </div>
-
-        <div className="container-custom text-center max-w-5xl relative z-10">
-          {/* Section Header - Hero Style */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight mb-6 text-white-pure">
-              Ready to Build
-              <br />
-              <span className="text-gradient-green">Something Extraordinary?</span>
-            </h2>
-            <p className="text-lg md:text-xl lg:text-2xl text-white-muted mb-10 max-w-3xl mx-auto">
-              From concept to launch, we turn ambitious visions into market-ready products.
-            </p>
-
-            {/* CTA Button */}
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="group/cta relative bg-black-card border-2 border-primary-green text-primary-green font-semibold rounded-md text-base md:text-lg px-8 py-4 inline-flex items-center gap-2 transition-all duration-500 overflow-hidden"
-            >
-              {/* Animated background on hover */}
-              <span className="absolute inset-0 bg-primary-green transform translate-y-full group-hover/cta:translate-y-0 transition-transform duration-500 ease-out" />
-
-              {/* Corner accents */}
-              <span className="absolute top-0 left-0 w-3 h-3 border-l-2 border-t-2 border-primary-green opacity-0 group-hover/cta:opacity-100 transition-opacity duration-300" />
-              <span className="absolute bottom-0 right-0 w-3 h-3 border-r-2 border-b-2 border-primary-green opacity-0 group-hover/cta:opacity-100 transition-opacity duration-300" />
-
-              {/* Glow effect */}
-              <span className="absolute inset-0 opacity-0 group-hover/cta:opacity-100 blur-lg bg-primary-green/40 -z-10 transition-opacity duration-500" />
-
-              {/* Text and Icon */}
-              <span className="relative z-10 group-hover/cta:text-black-pure transition-colors duration-300">
-                Start Your Project
-              </span>
-              <svg
-                className="relative z-10 w-5 h-5 transition-all duration-300 group-hover/cta:translate-x-1 group-hover/cta:text-black-pure"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </button>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Contact Form Modal */}
-      <ContactModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-    </>
-  );
-};
-
-const ContactModal = ({ isOpen, onClose }) => {
+  const [isVisible, setIsVisible] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    budget: '',
     message: '',
   });
-  const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+  const sectionRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = 'Please enter your name or company name';
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'Please enter your email address';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-
-    if (!formData.budget) {
-      newErrors.budget = 'Please select a budget range';
-    }
-
-    if (!formData.message.trim()) {
-      newErrors.message = 'Please describe your project';
-    } else if (formData.message.trim().length < 20) {
-      newErrors.message = 'Please provide at least 20 characters';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) return;
-
     setIsSubmitting(true);
 
     try {
-      // For MVP: Just log to console and show success
+      // For testing: log to console
       console.log('Form submitted:', formData);
 
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       setSubmitStatus('success');
+      setFormData({ name: '', email: '', message: '' });
 
-      // Reset form
-      setFormData({
-        name: '',
-        email: '',
-        budget: '',
-        message: '',
-      });
-
-      // Auto-close after success
-      setTimeout(() => {
-        onClose();
-        setSubmitStatus(null);
-      }, 2000);
+      setTimeout(() => setSubmitStatus(null), 3000);
     } catch (error) {
       setSubmitStatus('error');
     } finally {
@@ -264,206 +55,182 @@ const ContactModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Escape') {
-      onClose();
-    }
-  };
+  const whatsappNumber = '971582283256';
+  const whatsappMessage = encodeURIComponent('Hi, I\'m interested in discussing a project with M.D.N Tech.');
+  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={handleOverlayClick}
-          onKeyDown={handleKeyDown}
+    <section id="contact" className="section-padding bg-dark relative overflow-hidden" ref={sectionRef}>
+      {/* Background ambient glows */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 glow-orb-blue blur-3xl opacity-20"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 glow-orb-blue blur-3xl opacity-20"></div>
+
+      <div className="container-custom relative z-10">
+        {/* Section Header */}
+        <div
+          className={`text-center mb-16 transition-all duration-1000 ease-out ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
         >
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-black-pure/90 backdrop-blur-sm" />
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Let's Work Together
+          </h2>
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            Ready to start your project? Get in touch and we'll respond within 24 hours.
+          </p>
+        </div>
 
-          {/* Modal */}
-          <motion.div
-            className="relative bg-black-elevated border border-primary-green/30 rounded-lg shadow-green-glow max-w-lg w-full max-h-[90vh] overflow-y-auto"
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-primary-green/20">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-primary-green/60" />
-                  <div className="w-3 h-3 rounded-full bg-primary-green/40" />
-                  <div className="w-3 h-3 rounded-full bg-primary-green/20" />
-                </div>
-                <h3 className="text-lg font-bold text-white-pure">
-                  Start Your <span className="text-primary-green">Project</span>
-                </h3>
-              </div>
+        <div className="max-w-2xl mx-auto">
+          {/* Contact Form - Cascade animation */}
+          <form onSubmit={handleSubmit} className="space-y-6 mb-12">
+            {/* Name */}
+            <div
+              className={`transition-all duration-1000 ease-out ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+              }`}
+              style={{ transitionDelay: '300ms' }}
+            >
+              <label htmlFor="name" className="block text-white text-sm font-medium mb-3">
+                Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                placeholder="Your name or company"
+                className="input-field w-full"
+              />
+            </div>
+
+            {/* Email */}
+            <div
+              className={`transition-all duration-1000 ease-out ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+              }`}
+              style={{ transitionDelay: '500ms' }}
+            >
+              <label htmlFor="email" className="block text-white text-sm font-medium mb-3">
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                placeholder="your@email.com"
+                className="input-field w-full"
+              />
+            </div>
+
+            {/* Message */}
+            <div
+              className={`transition-all duration-1000 ease-out ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+              }`}
+              style={{ transitionDelay: '700ms' }}
+            >
+              <label htmlFor="message" className="block text-white text-sm font-medium mb-3">
+                Message
+              </label>
+              <textarea
+                id="message"
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                required
+                rows="6"
+                placeholder="Tell us about your project..."
+                className="input-field w-full resize-none"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <div
+              className={`transition-all duration-1000 ease-out ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+              }`}
+              style={{ transitionDelay: '900ms' }}
+            >
               <button
-                onClick={onClose}
-                className="text-white-soft hover:text-primary-green transition-colors p-1"
-                aria-label="Close modal"
+                type="submit"
+                disabled={isSubmitting}
+                className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <svg className="w-5 h-5" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                  <path d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Content */}
-            <div className="p-5">
-              <p className="text-white-muted text-sm mb-5">
-                Share your vision and we'll get back to you within 24 hours.
-              </p>
-
-              {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Name/Company */}
-                <div>
-                  <label htmlFor="name" className="block text-white-soft text-sm font-medium mb-2">
-                    Name or Company
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Your name or company name"
-                    className="w-full bg-black-card border border-primary-green/20 focus:border-primary-green/60 rounded-md text-white-pure placeholder-white-dim px-4 py-3 text-sm transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-primary-green/30"
-                  />
-                  {errors.name && (
-                    <p className="text-red-400 text-xs mt-1">{errors.name}</p>
-                  )}
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label htmlFor="email" className="block text-white-soft text-sm font-medium mb-2">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="your@email.com"
-                    className="w-full bg-black-card border border-primary-green/20 focus:border-primary-green/60 rounded-md text-white-pure placeholder-white-dim px-4 py-3 text-sm transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-primary-green/30"
-                  />
-                  {errors.email && (
-                    <p className="text-red-400 text-xs mt-1">{errors.email}</p>
-                  )}
-                </div>
-
-                {/* Budget Range - Custom Dropdown */}
-                <BudgetDropdown
-                  value={formData.budget}
-                  onChange={(value) => {
-                    setFormData((prev) => ({ ...prev, budget: value }));
-                    if (errors.budget) {
-                      setErrors((prev) => ({ ...prev, budget: '' }));
-                    }
-                  }}
-                  error={errors.budget}
-                />
-
-                {/* Project Description */}
-                <div>
-                  <label htmlFor="message" className="block text-white-soft text-sm font-medium mb-2">
-                    Project Details
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    placeholder="Describe your vision, goals, and what you're looking to build..."
-                    rows="4"
-                    maxLength="1000"
-                    className="w-full bg-black-card border border-primary-green/20 focus:border-primary-green/60 rounded-md text-white-pure placeholder-white-dim px-4 py-3 text-sm transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-primary-green/30 resize-none"
-                  />
-                  <div className="flex justify-between items-center mt-1">
-                    {errors.message ? (
-                      <p className="text-red-400 text-xs">{errors.message}</p>
-                    ) : (
-                      <span />
-                    )}
-                    <p className="text-white-dim text-xs">{formData.message.length}/1000</p>
-                  </div>
-                </div>
-
-                {/* Submit Button - matching website style */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="group/cta relative w-full bg-black-card border-2 border-primary-green text-primary-green font-semibold rounded-md text-base py-3 inline-flex items-center justify-center gap-2 transition-all duration-500 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {/* Animated background on hover */}
-                  <span className="absolute inset-0 bg-primary-green transform translate-y-full group-hover/cta:translate-y-0 transition-transform duration-500 ease-out" />
-
-                  {/* Text */}
-                  <span className="relative z-10 group-hover/cta:text-black-pure transition-colors duration-300">
-                    {isSubmitting ? (
-                      <span className="flex items-center gap-2">
-                        <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                        </svg>
-                        Sending...
-                      </span>
-                    ) : submitStatus === 'success' ? (
-                      <span className="flex items-center gap-2">
-                        <svg className="w-5 h-5" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                          <path d="M5 13l4 4L19 7" />
-                        </svg>
-                        Message Sent!
-                      </span>
-                    ) : (
-                      'Send Message'
-                    )}
-                  </span>
-                  <svg
-                    className="relative z-10 w-5 h-5 transition-all duration-300 group-hover/cta:translate-x-1 group-hover/cta:text-black-pure"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              {isSubmitting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                </button>
+                  Sending...
+                </span>
+              ) : submitStatus === 'success' ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Message Sent!
+                </span>
+              ) : (
+                'Send Message'
+              )}
+              </button>
 
-                {/* Error Message */}
-                {submitStatus === 'error' && (
-                  <p className="text-red-400 text-sm text-center">
-                    Something went wrong. Please try again or email us at chaosgenesisnft@gmail.com
-                  </p>
-                )}
-              </form>
-
-              {/* Footer hint */}
-              <p className="text-white-dim text-xs text-center mt-4">
-                Press ESC to close
-              </p>
+              {submitStatus === 'error' && (
+                <p className="text-error text-sm text-center">
+                  Something went wrong. Please try again.
+                </p>
+              )}
             </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          </form>
+
+          {/* Divider */}
+          <div
+            className={`flex items-center gap-4 my-12 transition-all duration-1000 ease-out ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+            }`}
+            style={{ transitionDelay: '1100ms' }}
+          >
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-500/30 to-transparent"></div>
+            <span className="text-gray-500 text-sm">or</span>
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-500/30 to-transparent"></div>
+          </div>
+
+          {/* WhatsApp Button */}
+          <div
+            className={`transition-all duration-1000 ease-out ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+            }`}
+            style={{ transitionDelay: '1300ms' }}
+          >
+            <a
+              href={whatsappLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative flex items-center justify-center gap-3 w-full py-4 px-6 bg-[#25D366] hover:bg-[#20BD5A] text-white font-medium rounded-lg transition-all duration-500 hover:-translate-y-1 overflow-hidden"
+              style={{
+                boxShadow: '0 0 20px rgba(37, 211, 102, 0.3)'
+              }}
+            >
+              {/* Glow effect on hover */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{
+                boxShadow: '0 0 40px rgba(37, 211, 102, 0.5), 0 0 80px rgba(37, 211, 102, 0.3)'
+              }}></div>
+
+              <svg className="w-6 h-6 relative z-10" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              <span className="relative z-10">Chat on WhatsApp</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 };
 

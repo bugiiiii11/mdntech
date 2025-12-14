@@ -1,33 +1,39 @@
-import Background3D from './components/background/Background3D';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Hero from './components/sections/Hero';
 import Services from './components/sections/Services';
-import Growth from './components/sections/Growth';
+import Project from './components/sections/Project';
 import About from './components/sections/About';
 import Contact from './components/sections/Contact';
 
+// Home page component
+const HomePage = () => (
+  <main>
+    <Hero />
+    <Services />
+    <Project />
+    <About />
+    <Contact />
+  </main>
+);
+
 function App() {
   return (
-    <div className="relative min-h-screen">
-      {/* 3D Background */}
-      <Background3D />
+    <Router>
+      <div className="min-h-screen bg-dark">
+        {/* Header Navigation */}
+        <Header />
 
-      {/* Header Navigation */}
-      <Header />
+        {/* Routes */}
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+        </Routes>
 
-      {/* Main Content */}
-      <main>
-        <Hero />
-        <Services />
-        <Growth />
-        <About />
-        <Contact />
-      </main>
-
-      {/* Footer */}
-      <Footer />
-    </div>
+        {/* Footer */}
+        <Footer />
+      </div>
+    </Router>
   );
 }
 

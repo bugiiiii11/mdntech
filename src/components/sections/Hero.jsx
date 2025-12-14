@@ -1,11 +1,11 @@
-import { motion } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
+import { useEffect, useState, useMemo } from 'react';
 
 const Hero = () => {
-  const [ref, inView] = useInView({
-    triggerOnce: true,
-    threshold: 0.2,
-  });
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
@@ -14,154 +14,364 @@ const Hero = () => {
     }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3,
-      },
-    },
-  };
+  // Generate light rays configuration (excluding horizontal)
+  const rays = [
+    // Top rays
+    { angle: -30, delay: 0, duration: 4, color: 'blue' },
+    { angle: -15, delay: 0.5, duration: 5, color: 'white' },
+    { angle: 15, delay: 1, duration: 4.5, color: 'blue' },
+    { angle: 30, delay: 0.3, duration: 5.5, color: 'cyan' },
+    // Bottom rays
+    { angle: 150, delay: 0.8, duration: 4.2, color: 'blue' },
+    { angle: 165, delay: 0.2, duration: 5.2, color: 'white' },
+    { angle: -150, delay: 1.2, duration: 4.8, color: 'cyan' },
+    { angle: -165, delay: 0.6, duration: 5, color: 'blue' },
+    // Side rays (angled, not horizontal)
+    { angle: 45, delay: 0.4, duration: 4.6, color: 'white' },
+    { angle: -45, delay: 0.9, duration: 5.1, color: 'blue' },
+    { angle: 135, delay: 0.7, duration: 4.4, color: 'cyan' },
+    { angle: -135, delay: 1.1, duration: 4.9, color: 'blue' },
+  ];
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: 'easeOut',
-      },
-    },
+  // Generate star field - memoized to prevent re-renders
+  const stars = useMemo(() =>
+    [...Array(80)].map((_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      size: Math.random() * 2 + 1,
+      opacity: Math.random() * 0.5 + 0.2,
+      twinkleDuration: 2 + Math.random() * 3,
+      twinkleDelay: Math.random() * 2,
+    })), []
+  );
+
+  const getGradientColor = (color) => {
+    switch (color) {
+      case 'blue':
+        return 'from-blue-500/20 via-blue-400/5';
+      case 'cyan':
+        return 'from-cyan-400/15 via-cyan-300/5';
+      case 'white':
+        return 'from-white/10 via-white/3';
+      default:
+        return 'from-blue-500/20 via-blue-400/5';
+    }
   };
 
   return (
     <section
       id="hero"
-      className="min-h-screen flex flex-col justify-center section-padding relative pt-32"
-      ref={ref}
+      className="min-h-screen flex items-center justify-center pt-20 relative overflow-hidden"
     >
-      <motion.div
-        className="container-custom text-center max-w-5xl mt-16 md:mt-24"
-        variants={containerVariants}
-        initial="hidden"
-        animate={inView ? 'visible' : 'hidden'}
-      >
-        {/* Main Headline */}
-        <motion.h1
-          variants={itemVariants}
-          className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight mb-6 text-white-pure"
-        >
-          Transform Your Vision
-          <br />
-          <span className="text-gradient-green">Into Digital Reality</span>
-        </motion.h1>
+      {/* Background base gradient */}
+      <div className="absolute inset-0 bg-gradient-radial from-dark via-dark to-dark-card opacity-50" />
 
-        {/* Subheadline */}
-        <motion.p
-          variants={itemVariants}
-          className="text-lg md:text-xl lg:text-2xl text-white-muted mb-4 max-w-3xl mx-auto"
-        >
-          We turn startup visions into market-ready products.
-        </motion.p>
+      {/* Star field background */}
+      <div className="absolute inset-0 overflow-hidden">
+        {stars.map((star) => (
+          <div
+            key={`star-${star.id}`}
+            className="absolute rounded-full bg-white"
+            style={{
+              left: `${star.left}%`,
+              top: `${star.top}%`,
+              width: `${star.size}px`,
+              height: `${star.size}px`,
+              opacity: star.opacity,
+              animation: `twinkle ${star.twinkleDuration}s ease-in-out ${star.twinkleDelay}s infinite`,
+            }}
+          />
+        ))}
+      </div>
 
-        {/* CTA Button */}
-        <motion.div variants={itemVariants} className="mt-10">
-          <button
-            onClick={() => scrollToSection('contact')}
-            className="group/cta relative bg-black-card border-2 border-primary-green text-primary-green font-semibold rounded-md transition-all duration-500 overflow-hidden text-base md:text-lg px-8 py-4 inline-flex items-center gap-2 shadow-green-glow-sm"
+      {/* Center darker area for text contrast */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: 'radial-gradient(ellipse at center, rgba(15, 20, 25, 0.95) 0%, rgba(15, 20, 25, 0.7) 40%, transparent 70%)',
+        }}
+      />
+
+      {/* Central glow pulse */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+        {/* Outer glow */}
+        <div
+          className="absolute w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 40%, transparent 70%)',
+            animation: 'centralPulse 4s ease-in-out infinite',
+          }}
+        />
+        {/* Inner glow */}
+        <div
+          className="absolute w-[400px] h-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(96, 165, 250, 0.2) 0%, rgba(59, 130, 246, 0.08) 50%, transparent 70%)',
+            animation: 'centralPulse 4s ease-in-out 0.5s infinite',
+          }}
+        />
+        {/* Core glow */}
+        <div
+          className="absolute w-[200px] h-[200px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-xl"
+          style={{
+            background: 'radial-gradient(circle, rgba(147, 197, 253, 0.3) 0%, transparent 70%)',
+            animation: 'centralPulse 3s ease-in-out 0.2s infinite',
+          }}
+        />
+      </div>
+
+      {/* Premium horizontal glow line */}
+      <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 pointer-events-none">
+        {/* Base layer - wide soft glow */}
+        <div
+          className="absolute inset-x-0 h-[120px] -translate-y-1/2"
+          style={{
+            background: 'linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, 0.03) 20%, rgba(96, 165, 250, 0.08) 50%, rgba(59, 130, 246, 0.03) 80%, transparent 100%)',
+            filter: 'blur(30px)',
+            animation: 'horizontalGlow 5s ease-in-out infinite',
+          }}
+        />
+
+        {/* Middle layer - medium glow */}
+        <div
+          className="absolute inset-x-0 h-[60px] -translate-y-1/2"
+          style={{
+            background: 'linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, 0.05) 15%, rgba(96, 165, 250, 0.15) 50%, rgba(59, 130, 246, 0.05) 85%, transparent 100%)',
+            filter: 'blur(15px)',
+            animation: 'horizontalGlow 5s ease-in-out 0.3s infinite',
+          }}
+        />
+
+        {/* Core layer - bright center line */}
+        <div
+          className="absolute inset-x-0 h-[20px] -translate-y-1/2"
+          style={{
+            background: 'linear-gradient(90deg, transparent 0%, rgba(147, 197, 253, 0.1) 10%, rgba(191, 219, 254, 0.25) 50%, rgba(147, 197, 253, 0.1) 90%, transparent 100%)',
+            filter: 'blur(8px)',
+            animation: 'horizontalGlow 5s ease-in-out 0.5s infinite',
+          }}
+        />
+
+        {/* Sharp accent line */}
+        <div
+          className="absolute inset-x-0 h-[2px] -translate-y-1/2"
+          style={{
+            background: 'linear-gradient(90deg, transparent 0%, rgba(96, 165, 250, 0.2) 20%, rgba(191, 219, 254, 0.5) 50%, rgba(96, 165, 250, 0.2) 80%, transparent 100%)',
+            animation: 'horizontalGlowIntense 4s ease-in-out infinite',
+          }}
+        />
+
+        {/* Single animated light travel effect - left to right */}
+        <div
+          className="absolute h-[60px] w-[300px] -translate-y-1/2"
+          style={{
+            background: 'radial-gradient(ellipse at center, rgba(191, 219, 254, 0.4) 0%, rgba(96, 165, 250, 0.2) 40%, transparent 70%)',
+            filter: 'blur(15px)',
+            animation: 'lightTravel 6s linear infinite',
+          }}
+        />
+      </div>
+
+      {/* Animated converging light rays */}
+      <div className="absolute inset-0 overflow-hidden">
+        {rays.map((ray, index) => (
+          <div
+            key={index}
+            className={`absolute top-1/2 left-1/2 w-[200%] h-[2px] origin-left bg-gradient-to-r ${getGradientColor(ray.color)} to-transparent`}
+            style={{
+              transform: `rotate(${ray.angle}deg) translateX(-50%)`,
+              animation: `rayPulse ${ray.duration}s ease-in-out ${ray.delay}s infinite`,
+            }}
+          />
+        ))}
+
+        {/* Additional wider rays for depth */}
+        {rays.slice(0, 6).map((ray, index) => (
+          <div
+            key={`wide-${index}`}
+            className={`absolute top-1/2 left-1/2 w-[150%] h-[60px] origin-left bg-gradient-to-r ${getGradientColor(ray.color)} to-transparent blur-2xl`}
+            style={{
+              transform: `rotate(${ray.angle + 5}deg) translateX(-50%)`,
+              animation: `rayPulse ${ray.duration + 1}s ease-in-out ${ray.delay + 0.5}s infinite`,
+              opacity: 0.3,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Subtle floating particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(15)].map((_, i) => (
+          <div
+            key={`particle-${i}`}
+            className="absolute w-1 h-1 bg-blue-400/40 rounded-full"
+            style={{
+              left: `${10 + Math.random() * 80}%`,
+              top: `${10 + Math.random() * 80}%`,
+              animation: `float ${5 + Math.random() * 5}s ease-in-out ${Math.random() * 2}s infinite`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Corner accent glows - top corners only, more visible */}
+      <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-[140px] -translate-x-1/2 -translate-y-1/2" />
+      <div className="absolute top-0 right-0 w-[450px] h-[450px] bg-cyan-500/20 rounded-full blur-[130px] translate-x-1/2 -translate-y-1/2" />
+
+      {/* Content */}
+      <div className="container-custom text-center relative z-10">
+        <div
+          className={`transition-all duration-700 ease-out ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
+        >
+          {/* Main Headline */}
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 text-white">
+            Your Vision,{' '}
+            <span className="text-primary">Engineered</span>
+          </h1>
+
+          {/* Subheadline */}
+          <p
+            className={`text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto transition-all duration-700 ease-out delay-150 ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            }`}
           >
-            {/* Animated background on hover */}
-            <span className="absolute inset-0 bg-primary-green transform translate-y-full group-hover/cta:translate-y-0 transition-transform duration-500 ease-out" />
+            We build custom web applications, mobile apps, and blockchain solutions
+            that drive your business forward.
+          </p>
 
-            {/* Corner accents */}
-            <span className="absolute top-0 left-0 w-2 h-2 border-l-2 border-t-2 border-primary-green opacity-0 group-hover/cta:opacity-100 transition-opacity duration-300" />
-            <span className="absolute bottom-0 right-0 w-2 h-2 border-r-2 border-b-2 border-primary-green opacity-0 group-hover/cta:opacity-100 transition-opacity duration-300" />
-
-            {/* Text */}
-            <span className="relative z-10 group-hover/cta:text-black-pure transition-colors duration-300">
-              Transform Your Vision
-            </span>
-            <svg
-              className="w-5 h-5 relative z-10 group-hover/cta:text-black-pure transition-colors duration-300"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+          {/* CTA Buttons */}
+          <div
+            className={`flex flex-col sm:flex-row gap-4 justify-center transition-all duration-700 ease-out delay-300 ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+            }`}
+          >
+            <button
+              onClick={() => scrollToSection('contact')}
+              className="btn-primary text-base px-8 py-4"
             >
-              <path d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-          </button>
-        </motion.div>
+              Start Your Project
+            </button>
+            <button
+              onClick={() => scrollToSection('services')}
+              className="btn-secondary text-base px-8 py-4"
+            >
+              View Services
+            </button>
+          </div>
+        </div>
+      </div>
 
-        {/* Scroll Indicator - Double Chevron */}
-        <motion.div
-          variants={itemVariants}
-          className="mt-20 md:mt-28"
-        >
-          <button
-            onClick={() => scrollToSection('services')}
-            className="group relative flex flex-col items-center mx-auto focus:outline-none"
-            aria-label="Scroll to services"
-          >
-            {/* Double Chevron Arrow - scales up on hover */}
-            <div className="relative flex flex-col items-center transition-transform duration-300 ease-out group-hover:scale-125">
-              {/* First chevron */}
-              <motion.svg
-                className="w-8 h-8 text-primary-green transition-colors duration-300 group-hover:text-primary-green-light"
-                viewBox="0 0 24 24"
-                fill="none"
-                animate={{
-                  y: [0, 4, 0],
-                  opacity: [0.7, 1, 0.7],
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              >
-                <path
-                  d="M5 9L12 16L19 9"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </motion.svg>
+      {/* CSS Animations */}
+      <style>{`
+        @keyframes rayPulse {
+          0%, 100% {
+            opacity: 0.3;
+            transform: rotate(var(--angle)) translateX(-50%) scaleX(0.8);
+          }
+          50% {
+            opacity: 0.8;
+            transform: rotate(var(--angle)) translateX(-50%) scaleX(1);
+          }
+        }
 
-              {/* Second chevron */}
-              <motion.svg
-                className="w-8 h-8 text-primary-green -mt-4 transition-colors duration-300 group-hover:text-primary-green-light"
-                viewBox="0 0 24 24"
-                fill="none"
-                animate={{
-                  y: [0, 4, 0],
-                  opacity: [0.5, 0.9, 0.5],
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 0.15,
-                }}
-              >
-                <path
-                  d="M5 9L12 16L19 9"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </motion.svg>
-            </div>
-          </button>
-        </motion.div>
-      </motion.div>
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0) translateX(0);
+            opacity: 0.3;
+          }
+          25% {
+            transform: translateY(-20px) translateX(10px);
+            opacity: 0.6;
+          }
+          50% {
+            transform: translateY(-10px) translateX(-5px);
+            opacity: 0.4;
+          }
+          75% {
+            transform: translateY(-30px) translateX(5px);
+            opacity: 0.5;
+          }
+        }
+
+        @keyframes twinkle {
+          0%, 100% {
+            opacity: 0.2;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.8;
+            transform: scale(1.2);
+          }
+        }
+
+        @keyframes centralPulse {
+          0%, 100% {
+            opacity: 0.6;
+            transform: translate(-50%, -50%) scale(0.95);
+          }
+          50% {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.05);
+          }
+        }
+
+        @keyframes horizontalGlow {
+          0%, 100% {
+            opacity: 0.5;
+          }
+          50% {
+            opacity: 1;
+          }
+        }
+
+        @keyframes horizontalGlowIntense {
+          0%, 100% {
+            opacity: 0.3;
+          }
+          50% {
+            opacity: 0.8;
+          }
+        }
+
+        @keyframes lightTravel {
+          0% {
+            left: -10%;
+            opacity: 0;
+          }
+          10% {
+            opacity: 1;
+          }
+          90% {
+            opacity: 1;
+          }
+          100% {
+            left: 110%;
+            opacity: 0;
+          }
+        }
+
+        @keyframes lightTravelReverse {
+          0% {
+            right: -10%;
+            left: auto;
+            opacity: 0;
+          }
+          10% {
+            opacity: 1;
+          }
+          90% {
+            opacity: 1;
+          }
+          100% {
+            right: 110%;
+            left: auto;
+            opacity: 0;
+          }
+        }
+      `}</style>
     </section>
   );
 };
