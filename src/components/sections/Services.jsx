@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 
 const Services = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [hoveredCard, setHoveredCard] = useState(null);
+  const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 });
   const sectionRef = useRef(null);
 
   useEffect(() => {
@@ -20,6 +22,31 @@ const Services = () => {
 
     return () => observer.disconnect();
   }, []);
+
+  const handleMouseMove = (e, index) => {
+    if (hoveredCard !== index) return;
+
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    const rotateX = ((y - centerY) / centerY) * -10;
+    const rotateY = ((x - centerX) / centerX) * 10;
+
+    setTilt({ rotateX, rotateY });
+  };
+
+  const handleMouseEnter = (index) => {
+    setHoveredCard(index);
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredCard(null);
+    setTilt({ rotateX: 0, rotateY: 0 });
+  };
 
   const services = [
     {
@@ -79,7 +106,18 @@ const Services = () => {
               className={`card transition-all duration-1000 ease-out ${
                 isVisible ? 'opacity-100 translate-x-0 translate-y-0' : index % 2 === 0 ? 'opacity-0 -translate-x-16 translate-y-8' : 'opacity-0 translate-x-16 translate-y-8'
               }`}
-              style={{ transitionDelay: `${index * 200 + 300}ms` }}
+              style={{
+                transitionDelay: `${index * 200 + 300}ms`,
+                transform: hoveredCard === index
+                  ? `perspective(1000px) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) scale(1.05)`
+                  : 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)',
+                transition: hoveredCard === index
+                  ? 'transform 0.1s ease-out'
+                  : 'all 1s ease-out',
+              }}
+              onMouseMove={(e) => handleMouseMove(e, index)}
+              onMouseEnter={() => handleMouseEnter(index)}
+              onMouseLeave={handleMouseLeave}
             >
               {/* Icon */}
               <div className="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-5">

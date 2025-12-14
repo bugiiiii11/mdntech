@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
+import ParallaxOrbs from './components/ParallaxOrbs';
 import Hero from './components/sections/Hero';
 import Services from './components/sections/Services';
 import Project from './components/sections/Project';
@@ -21,7 +22,10 @@ const HomePage = () => (
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-dark">
+      <div className="min-h-screen bg-dark relative">
+        {/* Floating Parallax Orbs */}
+        <ParallaxOrbs />
+
         {/* Header Navigation */}
         <Header />
 

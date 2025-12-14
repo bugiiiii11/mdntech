@@ -2,9 +2,19 @@ import { useEffect, useState, useMemo } from 'react';
 
 const Hero = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
     setIsVisible(true);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const scrollToSection = (sectionId) => {
@@ -64,11 +74,17 @@ const Hero = () => {
       id="hero"
       className="min-h-screen flex items-center justify-center pt-20 relative overflow-hidden"
     >
-      {/* Background base gradient */}
-      <div className="absolute inset-0 bg-gradient-radial from-dark via-dark to-dark-card opacity-50" />
+      {/* Background base gradient - slowest parallax */}
+      <div
+        className="absolute inset-0 bg-gradient-radial from-dark via-dark to-dark-card opacity-50 transition-transform duration-100 ease-out"
+        style={{ transform: `translateY(${scrollY * 0.5}px)` }}
+      />
 
-      {/* Star field background */}
-      <div className="absolute inset-0 overflow-hidden">
+      {/* Star field background - moderate parallax */}
+      <div
+        className="absolute inset-0 overflow-hidden transition-transform duration-100 ease-out"
+        style={{ transform: `translateY(${scrollY * 0.2}px)` }}
+      >
         {stars.map((star) => (
           <div
             key={`star-${star.id}`}
@@ -93,88 +109,23 @@ const Hero = () => {
         }}
       />
 
-      {/* Central glow pulse */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-        {/* Outer glow */}
-        <div
-          className="absolute w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-          style={{
-            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.05) 40%, transparent 70%)',
-            animation: 'centralPulse 4s ease-in-out infinite',
-          }}
-        />
-        {/* Inner glow */}
-        <div
-          className="absolute w-[400px] h-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-          style={{
-            background: 'radial-gradient(circle, rgba(96, 165, 250, 0.2) 0%, rgba(59, 130, 246, 0.08) 50%, transparent 70%)',
-            animation: 'centralPulse 4s ease-in-out 0.5s infinite',
-          }}
-        />
-        {/* Core glow */}
-        <div
-          className="absolute w-[200px] h-[200px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-xl"
-          style={{
-            background: 'radial-gradient(circle, rgba(147, 197, 253, 0.3) 0%, transparent 70%)',
-            animation: 'centralPulse 3s ease-in-out 0.2s infinite',
-          }}
-        />
-      </div>
-
-      {/* Premium horizontal glow line */}
+      {/* Vision → Engineered: Transforming light effect */}
       <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 pointer-events-none">
-        {/* Base layer - wide soft glow */}
         <div
-          className="absolute inset-x-0 h-[120px] -translate-y-1/2"
+          className="absolute h-[80px] w-[400px] -translate-y-1/2 -translate-x-1/2"
           style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, 0.03) 20%, rgba(96, 165, 250, 0.08) 50%, rgba(59, 130, 246, 0.03) 80%, transparent 100%)',
-            filter: 'blur(30px)',
-            animation: 'horizontalGlow 5s ease-in-out infinite',
-          }}
-        />
-
-        {/* Middle layer - medium glow */}
-        <div
-          className="absolute inset-x-0 h-[60px] -translate-y-1/2"
-          style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, 0.05) 15%, rgba(96, 165, 250, 0.15) 50%, rgba(59, 130, 246, 0.05) 85%, transparent 100%)',
-            filter: 'blur(15px)',
-            animation: 'horizontalGlow 5s ease-in-out 0.3s infinite',
-          }}
-        />
-
-        {/* Core layer - bright center line */}
-        <div
-          className="absolute inset-x-0 h-[20px] -translate-y-1/2"
-          style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgba(147, 197, 253, 0.1) 10%, rgba(191, 219, 254, 0.25) 50%, rgba(147, 197, 253, 0.1) 90%, transparent 100%)',
-            filter: 'blur(8px)',
-            animation: 'horizontalGlow 5s ease-in-out 0.5s infinite',
-          }}
-        />
-
-        {/* Sharp accent line */}
-        <div
-          className="absolute inset-x-0 h-[2px] -translate-y-1/2"
-          style={{
-            background: 'linear-gradient(90deg, transparent 0%, rgba(96, 165, 250, 0.2) 20%, rgba(191, 219, 254, 0.5) 50%, rgba(96, 165, 250, 0.2) 80%, transparent 100%)',
-            animation: 'horizontalGlowIntense 4s ease-in-out infinite',
-          }}
-        />
-
-        {/* Single animated light travel effect - left to right */}
-        <div
-          className="absolute h-[60px] w-[300px] -translate-y-1/2"
-          style={{
-            background: 'radial-gradient(ellipse at center, rgba(191, 219, 254, 0.4) 0%, rgba(96, 165, 250, 0.2) 40%, transparent 70%)',
-            filter: 'blur(15px)',
-            animation: 'lightTravel 6s linear infinite',
+            background: 'radial-gradient(ellipse at center, rgba(96, 165, 250, 0.7) 0%, rgba(59, 130, 246, 0.4) 30%, rgba(37, 99, 235, 0.2) 60%, transparent 80%)',
+            filter: 'blur(20px)',
+            animation: 'visionLight 8s ease-in-out infinite',
           }}
         />
       </div>
 
-      {/* Animated converging light rays */}
-      <div className="absolute inset-0 overflow-hidden">
+      {/* Animated converging light rays - light parallax */}
+      <div
+        className="absolute inset-0 overflow-hidden transition-transform duration-100 ease-out"
+        style={{ transform: `translateY(${scrollY * 0.1}px)` }}
+      >
         {rays.map((ray, index) => (
           <div
             key={index}
@@ -200,8 +151,11 @@ const Hero = () => {
         ))}
       </div>
 
-      {/* Subtle floating particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* Subtle floating particles - minimal parallax */}
+      <div
+        className="absolute inset-0 overflow-hidden pointer-events-none transition-transform duration-100 ease-out"
+        style={{ transform: `translateY(${scrollY * 0.05}px)` }}
+      >
         {[...Array(15)].map((_, i) => (
           <div
             key={`particle-${i}`}
@@ -307,70 +261,57 @@ const Hero = () => {
           }
         }
 
-        @keyframes centralPulse {
-          0%, 100% {
-            opacity: 0.6;
-            transform: translate(-50%, -50%) scale(0.95);
+        @keyframes visionLight {
+          0% {
+            left: -20%;
+            opacity: 0;
+            filter: blur(20px) brightness(0.5);
           }
-          50% {
+          15% {
+            opacity: 0.7;
+            filter: blur(20px) brightness(1);
+          }
+          40% {
+            left: 48%;
             opacity: 1;
-            transform: translate(-50%, -50%) scale(1.05);
+            filter: blur(15px) brightness(1.6);
+            transform: translateY(-50%) scale(1.3);
           }
-        }
-
-        @keyframes horizontalGlow {
-          0%, 100% {
-            opacity: 0.5;
-          }
-          50% {
+          47% {
+            left: 50%;
             opacity: 1;
-          }
-        }
-
-        @keyframes horizontalGlowIntense {
-          0%, 100% {
-            opacity: 0.3;
+            filter: blur(12px) brightness(2);
+            transform: translateY(-50%) scale(1.5);
           }
           50% {
+            left: 50%;
+            opacity: 1;
+            filter: blur(10px) brightness(2.2);
+            transform: translateY(-50%) scale(1.5);
+          }
+          53% {
+            left: 50%;
+            opacity: 1;
+            filter: blur(12px) brightness(2);
+            transform: translateY(-50%) scale(1.5);
+          }
+          60% {
+            left: 52%;
+            opacity: 1;
+            filter: blur(15px) brightness(1.6);
+            transform: translateY(-50%) scale(1.3);
+          }
+          85% {
             opacity: 0.8;
+            filter: blur(20px) brightness(1.2);
+          }
+          100% {
+            left: 120%;
+            opacity: 0;
+            filter: blur(25px) brightness(0.5);
           }
         }
 
-        @keyframes lightTravel {
-          0% {
-            left: -10%;
-            opacity: 0;
-          }
-          10% {
-            opacity: 1;
-          }
-          90% {
-            opacity: 1;
-          }
-          100% {
-            left: 110%;
-            opacity: 0;
-          }
-        }
-
-        @keyframes lightTravelReverse {
-          0% {
-            right: -10%;
-            left: auto;
-            opacity: 0;
-          }
-          10% {
-            opacity: 1;
-          }
-          90% {
-            opacity: 1;
-          }
-          100% {
-            right: 110%;
-            left: auto;
-            opacity: 0;
-          }
-        }
       `}</style>
     </section>
   );

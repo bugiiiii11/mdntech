@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 const Project = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const sectionRef = useRef(null);
 
   useEffect(() => {
@@ -19,6 +20,27 @@ const Project = () => {
     }
 
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!sectionRef.current) return;
+
+      const rect = sectionRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const sectionHeight = rect.height;
+
+      const scrollableDistance = windowHeight + sectionHeight;
+      const scrolled = windowHeight - rect.top;
+      const progress = Math.min(Math.max(scrolled / scrollableDistance, 0), 1);
+
+      setScrollProgress(progress);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
@@ -112,12 +134,15 @@ const Project = () => {
               {/* Decorative ring glow */}
               <div className="absolute top-1/2 left-1/2 w-80 h-80 border border-primary/20 rounded-full -translate-x-1/2 -translate-y-1/2 glow-blue-md"></div>
 
-              {/* Character Image */}
+              {/* Character Image - Scroll-based zoom */}
               <div className="relative z-10">
                 <img
-                  src="/images/swarm/character-warrior.png"
+                  src="/images/swarm/character-warrior2.png"
                   alt="Swarm Resistance Character"
-                  className="max-h-[350px] lg:max-h-[400px] w-auto object-contain drop-shadow-2xl relative z-10"
+                  className="max-h-[350px] lg:max-h-[400px] w-auto object-contain drop-shadow-2xl relative z-10 transition-transform duration-100 ease-out"
+                  style={{
+                    transform: `scale(${1 + scrollProgress * 0.15})`,
+                  }}
                   onError={(e) => {
                     e.target.style.display = 'none';
                     e.target.nextSibling.style.display = 'flex';
